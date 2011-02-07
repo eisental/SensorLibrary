@@ -1,0 +1,4 @@
+name: SensorLibrary
+main: org.tal.sensorlibrary.SensorLibrary
+version: 0.1
+

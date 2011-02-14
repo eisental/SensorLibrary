@@ -62,8 +62,8 @@ System.out.println(":" + lightBlocks.length + " light blocks");
     }
 
     private boolean isPartOfStructure(Block b) {
-        for (Location l : structure) {
-            if (l.equals(b.getLocation())) {
+        for (BlockVector v : structure) {
+            if (v.equals(new BlockVector(b.getX(), b.getY(), b.getZ()))) {
                 return true;
             }
         }
@@ -74,8 +74,8 @@ System.out.println(":" + lightBlocks.length + " light blocks");
     private BlockVector[] findLightBlocks() {
         List<BlockVector> blocks = new ArrayList<BlockVector>();
 
-        for (Location l : interfaceBlocks) {
-            Block iBlock = world.getBlockAt(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+        for (BlockVector v : interfaceBlocks) {
+            Block iBlock = world.getBlockAt(v.getBlockX(), v.getBlockY(), v.getBlockZ());
             for (BlockFace face : lightFaces) {
                 Block faceBlock = iBlock.getFace(face);
                 if (!this.isPartOfStructure(faceBlock))

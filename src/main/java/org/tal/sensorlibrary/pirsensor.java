@@ -1,12 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.tal.sensorlibrary;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
@@ -27,17 +21,15 @@ public class pirsensor extends Circuit {
             // clock pin triggered
             boolean alarm = false;
 
-            for (Entity e : world.getEntities()) {
-                if (e instanceof LivingEntity) {
-                    Location l = e.getLocation();
-                    Vector v = new Vector(l.getX(), l.getY(), l.getZ());
+            for (LivingEntity e : world.getLivingEntities()) {
+                Location l = e.getLocation();
+                Vector v = new Vector(l.getX(), l.getY(), l.getZ());
 
-                    if (v.isInSphere(center, radius)) {
-                        // pir triggered
-                        alarm = true;
-                        if (hasDebuggers()) debug("PIR sensor triggered.");
-                        break;
-                    }
+                if (v.isInSphere(center, radius)) {
+                    // pir triggered
+                    alarm = true;
+                    if (hasDebuggers()) debug("PIR sensor triggered.");
+                    break;
                 }
             }
 

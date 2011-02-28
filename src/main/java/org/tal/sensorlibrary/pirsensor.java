@@ -1,8 +1,8 @@
 package org.tal.sensorlibrary;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 import org.tal.redstonechips.circuit.Circuit;
@@ -38,19 +38,19 @@ public class pirsensor extends Circuit {
     }
 
     @Override
-    protected boolean init(Player player, String[] args) {
+    protected boolean init(CommandSender sender, String[] args) {
         if (interfaceBlocks.length!=1) {
-            error(player, "Expecting 1 interface block.");
+            error(sender, "Expecting 1 interface block.");
             return false;
         }
 
         if (inputs.length!=1) {
-            error(player, "Expecting 1 clock input pin.");
+            error(sender, "Expecting 1 clock input pin.");
             return false;
         }
 
         if (outputs.length!=1) {
-            error(player, "Expecting 1 alarm output.");
+            error(sender, "Expecting 1 alarm output.");
             return false;
         }
 
@@ -58,7 +58,7 @@ public class pirsensor extends Circuit {
             try {
                 radius = Integer.decode(args[0]);
             } catch (NumberFormatException ne) {
-                error(player, "Bad sensitivity sign argument: " + args[0]);
+                error(sender, "Bad sensitivity sign argument: " + args[0]);
                 return false;
             }
         }

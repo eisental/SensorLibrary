@@ -7,10 +7,9 @@ package org.tal.sensorlibrary;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.bukkit.util.BlockVector;
 import org.tal.redstonechips.circuit.Circuit;
 
@@ -37,14 +36,14 @@ public class photocell extends Circuit {
     }
 
     @Override
-    protected boolean init(Player player, String[] args) {
+    protected boolean init(CommandSender sender, String[] args) {
         if (inputs.length!=1) {
-            error(player, "Expecting 1 clock input pin.");
+            error(sender, "Expecting 1 clock input pin.");
             return false;
         }
 
         if (outputs.length<1 || outputs.length>4) {
-            error(player, "Expecting 1 to 4 output data pins.");
+            error(sender, "Expecting 1 to 4 output data pins.");
         }
 
         lightBlocks = findLightBlocks();

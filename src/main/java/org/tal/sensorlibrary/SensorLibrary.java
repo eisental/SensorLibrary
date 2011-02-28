@@ -5,25 +5,33 @@
 
 package org.tal.sensorlibrary;
 
-import java.io.File;
-import org.bukkit.Server;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
+import java.util.logging.Logger;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.tal.redstonechips.RedstoneChips;
 import org.tal.redstonechips.circuit.CircuitLibrary;
 
 /**
  *
  * @author Tal Eisenberg
  */
-public class SensorLibrary extends CircuitLibrary {
+public class SensorLibrary extends JavaPlugin {
+    public static final Logger logger = Logger.getLogger("Minecraft");
 
-    public SensorLibrary(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
-        super(pluginLoader, instance, desc, folder, plugin, cLoader);
+    public SensorLibrary() {
+        new CircuitLibrary() {
+            @Override
+            public Class[] getCircuitClasses() {
+                return new Class[] {photocell.class, pirsensor.class, rangefinder.class, daytime.class};
+            }
+        };
     }
 
     @Override
-    public Class[] getCircuitClasses() {
-        return new Class[] {photocell.class, pirsensor.class, ustransceiver.class, daytime.class};
+    public void onDisable() {
+    }
+
+    @Override
+    public void onEnable() {
     }
 
 }

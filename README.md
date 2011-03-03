@@ -19,6 +19,9 @@ Installation
 
 Changelog
 ---------
+#### SensorLibrary 0.21 (03/03/11)
+- daytime can output game minutes and some more changes to the time field argument. Check the docs.
+
 #### SensorLibrary 0.2 (28/02/11)
 - Updated to work with latest craftbukkit and RC0.82
 - New daytime circuit

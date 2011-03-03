@@ -9,12 +9,28 @@ import org.tal.redstonechips.circuit.Circuit;
  * @author Tal Eisenberg
  */
 public class daytime extends Circuit {
-    enum TimeField { HOUR, MINUTE, SECOND, SECONDOFDAY, TICKOFDAY, TICK }
+    enum TimeField {
+        SECOND(23999,59), SECONDOFDAY(23999, 86399), MINUTE(59,59), MINUTEOFDAY(1439,1439), HOUR(23, 23), TICK(23999, 86399);
 
+        public int gameMax, earthMax;
+
+        TimeField(int gameMax, int earthMax) {
+            this.gameMax = gameMax;
+            this.earthMax = earthMax;
+        }
+
+        int maxTime(boolean earthtime) {
+            if (earthtime) return earthMax;
+            else return gameMax;
+        }
+    }
+
+    private static final double ticksPerHour = 1000d;
+    private static final double ticksPerMinute = ticksPerHour/60d; //16.6666666...
 
     private boolean earthtime = false;
     private int maxval;
-    private int maxtime;
+
     private TimeField timeField;
 
     @Override
@@ -25,28 +41,34 @@ public class daytime extends Circuit {
                 Calendar now = Calendar.getInstance();
                 if (timeField==TimeField.SECOND)
                     time = now.get(Calendar.SECOND);
-                else if(timeField == TimeField.SECONDOFDAY)
+                else if(timeField == TimeField.SECONDOFDAY || timeField==TimeField.TICK)
                     time = now.get(Calendar.SECOND) + now.get(Calendar.MINUTE)*60 + now.get(Calendar.HOUR_OF_DAY) * 60;
                 else if (timeField==TimeField.MINUTE)
                     time = now.get(Calendar.MINUTE);
+                else if (timeField==TimeField.MINUTEOFDAY)
+                    time = now.get(Calendar.MINUTE) + now.get(Calendar.HOUR_OF_DAY)*60;
                 else if (timeField==TimeField.HOUR)
                     time = now.get(Calendar.HOUR_OF_DAY);
                 else time = -1;
             } else {
-                if (timeField==TimeField.TICKOFDAY)
+                if (timeField==TimeField.SECONDOFDAY || timeField==TimeField.TICK || timeField==TimeField.SECOND)
                     time = (int)world.getTime();
-                else if(timeField == TimeField.TICK)
-                    time = (int)(world.getTime()%1000);
-                else if (timeField==TimeField.HOUR)
-                    time = (int)(world.getTime()/1000d);
+                else if (timeField == TimeField.MINUTEOFDAY)
+                    time = (int)Math.round(world.getTime()/ticksPerMinute);
+                else if (timeField == TimeField.MINUTE)
+                    time = (int)Math.round((world.getTime()%1000)/ticksPerMinute);
+                else if (timeField == TimeField.HOUR)
+                    time = (int)(world.getTime()/ticksPerHour);
                 else time = -1;
             }
 
+            time = Math.min(time, timeField.maxTime(earthtime));
+            
             if (hasDebuggers()) debug("Time is " + time);
 
             int output;
             if (time>maxval)
-                output = Math.round(((float)time/(float)maxtime)*maxval);
+                output = Math.round(((float)time/(float)timeField.maxTime(earthtime))*maxval);
             else
                 output = time;
 
@@ -74,36 +96,10 @@ public class daytime extends Circuit {
                 return false;
             }
         } else {
-            if (earthtime) timeField=TimeField.SECOND;
-            else timeField=TimeField.TICK;
+            timeField=TimeField.TICK;
         }
 
-        maxval = (int)(Math.pow(2, outputs.length)-1);
-        if (earthtime) {
-            if (timeField==TimeField.TICK || timeField==TimeField.TICKOFDAY) {
-                error(sender, "Invalid time field when using earth time: " + timeField.name());
-                return false;
-            } else if (timeField == TimeField.HOUR)
-                maxtime = 23; // number of hours per real day.
-            else if (timeField==TimeField.MINUTE)
-                maxtime = 59; // number of minutes per hour.
-            else if (timeField==TimeField.SECONDOFDAY)
-                maxtime = 86399; // number of seconds per real day.
-            else if (timeField==TimeField.SECOND)
-                maxtime = 59; // number of seconds per minute.
-
-        }
-        else {
-            if (timeField==TimeField.MINUTE || timeField==TimeField.SECOND || timeField==TimeField.SECONDOFDAY) {
-                error(sender, "Invalid time field when using game time: " + timeField.name());
-                return false;
-            } else if (timeField==TimeField.HOUR)
-                maxtime = 23;
-            else if (timeField==TimeField.TICKOFDAY)
-                maxtime = 23999; // number of game ticks per game day.
-            else if (timeField==TimeField.TICK)
-                maxtime = 999; // number of game ticks per game hour.
-        }
+        maxval = (int)(Math.pow(2, outputs.length)-1);        
 
         return true;
     }

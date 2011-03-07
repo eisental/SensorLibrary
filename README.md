@@ -19,7 +19,7 @@ Installation
 
 Changelog
 ---------
-#### SensorLibrary 0.22 (07/07/11)
+#### SensorLibrary 0.22 (07/03/11)
 - Updated to work with RedstoneChips 0.83
 
 #### SensorLibrary 0.21 (03/03/11)

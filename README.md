@@ -14,8 +14,8 @@ __For much more information, visit the [circuitdocs](http://eisental.github.com/
 Installation
 -------------
 * Make sure you have the core [RedstoneChips](http://eisental.github.com/RedstoneChips) plugin installed in your craftbukkit plugins folder.
-* Download the [SensorLibrary-0.22](https://github.com/downloads/eisental/SensorLibrary/SensorLibrary-0.22.jar) jar file.
-* Copy the downloaded jar file into the plugins folder of your craftbukkit installation, keeping its original filename.
+* Download [SensorLibrary-0.22.jar](https://github.com/downloads/eisental/SensorLibrary/SensorLibrary-0.22.jar).
+* Copy SensorLibrary-0.22.jar into the plugins folder of your craftbukkit installation, keeping its original filename.
 
 Changelog
 ---------

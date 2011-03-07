@@ -13,12 +13,15 @@ __For much more information, visit the [circuitdocs](http://eisental.github.com/
 
 Installation
 -------------
-* Make sure you have RedstoneChips-0.82.jar installed in your craftbukkit plugins folder.
-* Download the [SensorLibrary-0.21](https://github.com/downloads/eisental/SensorLibrary/SensorLibrary-0.21.jar) jar file.
+* Make sure you have the core [RedstoneChips](http://eisental.github.com/RedstoneChips) plugin installed in your craftbukkit plugins folder.
+* Download the [SensorLibrary-0.22](https://github.com/downloads/eisental/SensorLibrary/SensorLibrary-0.22.jar) jar file.
 * Copy the downloaded jar file into the plugins folder of your craftbukkit installation, keeping its original filename.
 
 Changelog
 ---------
+#### SensorLibrary 0.22 (07/07/11)
+- Updated to work with RedstoneChips 0.83
+
 #### SensorLibrary 0.21 (03/03/11)
 - daytime can output game minutes and some more changes to the time field argument. Check the docs.
 

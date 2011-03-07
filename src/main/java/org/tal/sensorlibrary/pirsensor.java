@@ -3,7 +3,6 @@ package org.tal.sensorlibrary;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 import org.tal.redstonechips.circuit.Circuit;
 
@@ -12,7 +11,7 @@ import org.tal.redstonechips.circuit.Circuit;
  * @author Tal Eisenberg
  */
 public class pirsensor extends Circuit {
-    private BlockVector center;
+    private Vector center;
     private int radius = 10;
 
     @Override
@@ -63,8 +62,8 @@ public class pirsensor extends Circuit {
             }
         }
 
-        BlockVector i = interfaceBlocks[0];
-        center = new BlockVector(i.getBlockX(), i.getBlockY(), i.getBlockZ());
+        Location i = interfaceBlocks[0];
+        center = i.toVector();
         return true;
     }
 

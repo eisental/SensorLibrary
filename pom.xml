@@ -4,7 +4,7 @@
   <groupId>org.tal</groupId>
   <artifactId>SensorLibrary</artifactId>
   <packaging>jar</packaging>
-  <version>0.21</version>
+  <version>0.22</version>
   <name>SensorLibrary</name>
   <url>http://maven.apache.org</url>
     <build>
@@ -38,9 +38,9 @@
       <scope>test</scope>
     </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.tal</groupId>
             <artifactId>RedstoneChips</artifactId>
-            <version>0.82</version>
+            <version>beta</version>
         </dependency>
     </dependencies>
 </project>

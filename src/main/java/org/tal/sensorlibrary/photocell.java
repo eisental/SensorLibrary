@@ -7,10 +7,10 @@ package org.tal.sensorlibrary;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.util.BlockVector;
 import org.tal.redstonechips.circuit.Circuit;
 
 /**
@@ -20,7 +20,7 @@ import org.tal.redstonechips.circuit.Circuit;
 public class photocell extends Circuit {
     private static final BlockFace[] lightFaces = new BlockFace[] { BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST };
 
-    private BlockVector[] lightBlocks;
+    private Location[] lightBlocks;
 
     @Override
     public void inputChange(int inIdx, boolean state) {
@@ -53,16 +53,16 @@ System.out.println(":" + lightBlocks.length + " light blocks");
 
     private int averageLightLevelAround(Block block) {
         int ret = 0;
-        for (BlockVector lightBlock : lightBlocks) {
-            ret += world.getBlockAt(lightBlock.getBlockX(), lightBlock.getBlockY(), lightBlock.getBlockZ()).getLightLevel();
+        for (Location lightBlock : lightBlocks) {
+            ret += world.getBlockAt(lightBlock).getLightLevel();
         }
 
         return Math.round(ret / lightBlocks.length);
     }
 
     private boolean isPartOfStructure(Block b) {
-        for (BlockVector v : structure) {
-            if (v.equals(new BlockVector(b.getX(), b.getY(), b.getZ()))) {
+        for (Location s : structure) {
+            if (s.equals(b.getLocation())) {
                 return true;
             }
         }
@@ -70,19 +70,19 @@ System.out.println(":" + lightBlocks.length + " light blocks");
         return false;
     }
 
-    private BlockVector[] findLightBlocks() {
-        List<BlockVector> blocks = new ArrayList<BlockVector>();
+    private Location[] findLightBlocks() {
+        List<Location> blocks = new ArrayList<Location>();
 
-        for (BlockVector v : interfaceBlocks) {
-            Block iBlock = world.getBlockAt(v.getBlockX(), v.getBlockY(), v.getBlockZ());
+        for (Location l : interfaceBlocks) {
+            Block iBlock = world.getBlockAt(l);
             for (BlockFace face : lightFaces) {
                 Block faceBlock = iBlock.getFace(face);
                 if (!this.isPartOfStructure(faceBlock))
-                    blocks.add(new BlockVector(faceBlock.getX(), faceBlock.getY(), faceBlock.getZ()));
+                    blocks.add(faceBlock.getLocation());
             }
         }
 
-        return blocks.toArray(new BlockVector[blocks.size()]);
+        return blocks.toArray(new Location[blocks.size()]);
     }
 
 

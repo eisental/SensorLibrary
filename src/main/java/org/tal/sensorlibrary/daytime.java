@@ -1,6 +1,8 @@
 package org.tal.sensorlibrary;
 
 import java.util.Calendar;
+
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.tal.redstonechips.circuit.Circuit;
 
@@ -32,6 +34,7 @@ public class daytime extends Circuit {
     private int maxval;
 
     private TimeField timeField;
+    private World w;
 
     @Override
     public void inputChange(int inIdx, boolean state) {
@@ -52,13 +55,13 @@ public class daytime extends Circuit {
                 else time = -1;
             } else {
                 if (timeField==TimeField.SECONDOFDAY || timeField==TimeField.TICK || timeField==TimeField.SECOND)
-                    time = (int)world.getTime();
+                    time = (int)w.getTime();
                 else if (timeField == TimeField.MINUTEOFDAY)
-                    time = (int)Math.round(world.getTime()/ticksPerMinute);
+                    time = (int)Math.round(w.getTime()/ticksPerMinute);
                 else if (timeField == TimeField.MINUTE)
-                    time = (int)Math.round((world.getTime()%1000)/ticksPerMinute);
+                    time = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
                 else if (timeField == TimeField.HOUR)
-                    time = (int)(world.getTime()/ticksPerHour);
+                    time = (int)(w.getTime()/ticksPerHour);
                 else time = -1;
             }
 
@@ -97,6 +100,16 @@ public class daytime extends Circuit {
             }
         } else {
             timeField=TimeField.TICK;
+        }
+        
+        if (args.length>2) {
+            w = redstoneChips.getServer().getWorld(args[2]);
+            if (w == null) {
+                error(sender, "Not a valid world");
+                return false;
+            }
+        } else {
+            w = world;
         }
 
         maxval = (int)(Math.pow(2, outputs.length)-1);        

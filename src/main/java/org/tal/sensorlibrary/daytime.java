@@ -105,7 +105,7 @@ public class daytime extends Circuit {
         if (args.length>2) {
             w = redstoneChips.getServer().getWorld(args[2]);
             if (w == null) {
-                error(sender, "Not a valid world");
+                error(sender, "Unknown world name: " + args[2]);
                 return false;
             }
         } else {

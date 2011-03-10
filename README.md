@@ -20,10 +20,11 @@ Installation
 Changelog
 ---------
 #### SensorLibrary 0.23 (10/03/11)
-- Updated to work with RedstoneChips 0.84
+- daytime can output current time in other worlds. Coded by @dashkal.
+- Updated to work with RedstoneChips 0.84.
 
 #### SensorLibrary 0.22 (07/03/11)
-- Updated to work with RedstoneChips 0.83
+- Updated to work with RedstoneChips 0.83.
 
 #### SensorLibrary 0.21 (03/03/11)
 - daytime can output game minutes and some more changes to the time field argument. Check the docs.

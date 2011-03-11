@@ -4,7 +4,6 @@
   <groupId>org.tal</groupId>
   <artifactId>SensorLibrary</artifactId>
   <packaging>jar</packaging>
-  <version>0.23</version>
   <name>SensorLibrary</name>
   <url>http://maven.apache.org</url>
     <build>
@@ -33,4 +32,5 @@
             <version>beta</version>
         </dependency>
     </dependencies>
+    <version>beta</version>
 </project>

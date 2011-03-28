@@ -52,6 +52,19 @@ public class daytime extends Circuit {
                     time = now.get(Calendar.MINUTE) + now.get(Calendar.HOUR_OF_DAY)*60;
                 else if (timeField==TimeField.HOUR)
                     time = now.get(Calendar.HOUR_OF_DAY);
+				// Hinchy edits here!
+                else if (timeField==TimeField.HOUR1)
+                    value = now.get(Calendar.HOUR_OF_DAY);
+					time = value % 10;
+                else if (timeField==TimeField.HOUR10)
+                    value = now.get(Calendar.HOUR_OF_DAY);
+					time = value - (value % 10);
+                else if (timeField==TimeField.MINUTE1)
+                    value = now.get(Calendar.MINUTE);
+					time = value % 10;
+                else if (timeField==TimeField.MINUTE10)
+                    value = now.get(Calendar.MINUTE);
+					time = value - (value % 10);
                 else time = -1;
             } else {
                 if (timeField==TimeField.SECONDOFDAY || timeField==TimeField.TICK || timeField==TimeField.SECOND)
@@ -62,6 +75,19 @@ public class daytime extends Circuit {
                     time = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
                 else if (timeField == TimeField.HOUR)
                     time = (int)(w.getTime()/ticksPerHour);
+				// Hinchy edits here!
+                else if (timeField==TimeField.HOUR1)
+                    value = (int)(w.getTime()/ticksPerHour);
+					time = value % 10;
+                else if (timeField==TimeField.HOUR10)
+                    value = (int)(w.getTime()/ticksPerHour);
+					time = value - (value % 10);
+                else if (timeField==TimeField.MINUTE1)
+                    value = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
+					time = value % 10;
+                else if (timeField==TimeField.MINUTE10)
+                    value = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
+					time = value - (value % 10);
                 else time = -1;
             }
 

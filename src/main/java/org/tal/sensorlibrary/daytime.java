@@ -12,7 +12,7 @@ import org.tal.redstonechips.circuit.Circuit;
  */
 public class daytime extends Circuit {
     enum TimeField {
-        SECOND(23999,59), SECONDOFDAY(23999, 86399), MINUTE(59,59), MINUTEOFDAY(1439,1439), HOUR(23, 23), TICK(23999, 86399);
+        SECOND(23999,59), SECONDOFDAY(23999, 86399), MINUTE(59,59), MINUTEOFDAY(1439,1439), HOUR(23, 23), TICK(23999, 86399), MINUTE1(59,59), MINUTE10(59,59), HOUR1(23, 23), HOUR10(23, 23);
 
         public int gameMax, earthMax;
 
@@ -39,7 +39,7 @@ public class daytime extends Circuit {
     @Override
     public void inputChange(int inIdx, boolean state) {
         if (state) {
-            int time;
+            int time, value;
             if (earthtime) {
                 Calendar now = Calendar.getInstance();
                 if (timeField==TimeField.SECOND)
@@ -52,20 +52,19 @@ public class daytime extends Circuit {
                     time = now.get(Calendar.MINUTE) + now.get(Calendar.HOUR_OF_DAY)*60;
                 else if (timeField==TimeField.HOUR)
                     time = now.get(Calendar.HOUR_OF_DAY);
-				// Hinchy edits here!
-                else if (timeField==TimeField.HOUR1)
+                else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
                     value = now.get(Calendar.HOUR_OF_DAY);
 					time = value % 10;
-                else if (timeField==TimeField.HOUR10)
+                } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
                     value = now.get(Calendar.HOUR_OF_DAY);
-					time = value - (value % 10);
-                else if (timeField==TimeField.MINUTE1)
+					time = (value - (value % 10))/10;
+                } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
                     value = now.get(Calendar.MINUTE);
 					time = value % 10;
-                else if (timeField==TimeField.MINUTE10)
+                } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit
                     value = now.get(Calendar.MINUTE);
-					time = value - (value % 10);
-                else time = -1;
+					time = (value - (value % 10))/10;
+                } else time = -1;
             } else {
                 if (timeField==TimeField.SECONDOFDAY || timeField==TimeField.TICK || timeField==TimeField.SECOND)
                     time = (int)w.getTime();
@@ -75,20 +74,19 @@ public class daytime extends Circuit {
                     time = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
                 else if (timeField == TimeField.HOUR)
                     time = (int)(w.getTime()/ticksPerHour);
-				// Hinchy edits here!
-                else if (timeField==TimeField.HOUR1)
+                else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
                     value = (int)(w.getTime()/ticksPerHour);
 					time = value % 10;
-                else if (timeField==TimeField.HOUR10)
+                } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
                     value = (int)(w.getTime()/ticksPerHour);
-					time = value - (value % 10);
-                else if (timeField==TimeField.MINUTE1)
+					time = (value - (value % 10))/10;
+                } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
                     value = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
 					time = value % 10;
-                else if (timeField==TimeField.MINUTE10)
+                } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit
                     value = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
-					time = value - (value % 10);
-                else time = -1;
+					time = (value - (value % 10))/10;
+                } else time = -1;
             }
 
             time = Math.min(time, timeField.maxTime(earthtime));

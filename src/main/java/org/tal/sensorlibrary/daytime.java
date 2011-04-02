@@ -12,7 +12,7 @@ import org.tal.redstonechips.circuit.Circuit;
  */
 public class daytime extends Circuit {
     enum TimeField {
-        SECOND(23999,59), SECONDOFDAY(23999, 86399), MINUTE(59,59), MINUTEOFDAY(1439,1439), HOUR(23, 23), TICK(23999, 86399), MINUTE1(59,59), MINUTE10(59,59), HOUR1(23, 23), HOUR10(23, 23);
+        SECOND(23999,59), SECONDOFDAY(23999, 86399), MINUTE(59,59), MINUTEOFDAY(1439,1439), HOUR(23, 23), TICK(23999, 86399), MINUTE1(9,9), MINUTE10(5,5), HOUR1(9, 9), HOUR10(2, 2);
 
         public int gameMax, earthMax;
 
@@ -53,17 +53,17 @@ public class daytime extends Circuit {
                 else if (timeField==TimeField.HOUR)
                     time = now.get(Calendar.HOUR_OF_DAY);
                 else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
-                    value = now.get(Calendar.HOUR_OF_DAY);
-					time = value % 10;
+                    time = now.get(Calendar.HOUR_OF_DAY);
+                    time = time % 10;
                 } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
-                    value = now.get(Calendar.HOUR_OF_DAY);
-					time = (value - (value % 10))/10;
+                    time = now.get(Calendar.HOUR_OF_DAY);
+                    time = time / 10;
                 } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
-                    value = now.get(Calendar.MINUTE);
-					time = value % 10;
+                    time = now.get(Calendar.MINUTE);
+                    time = time % 10;
                 } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit
-                    value = now.get(Calendar.MINUTE);
-					time = (value - (value % 10))/10;
+                    time = now.get(Calendar.MINUTE);
+                    time = time / 10;
                 } else time = -1;
             } else {
                 if (timeField==TimeField.SECONDOFDAY || timeField==TimeField.TICK || timeField==TimeField.SECOND)
@@ -75,17 +75,17 @@ public class daytime extends Circuit {
                 else if (timeField == TimeField.HOUR)
                     time = (int)(w.getTime()/ticksPerHour);
                 else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
-                    value = (int)(w.getTime()/ticksPerHour);
-					time = value % 10;
+                    time = (int)(w.getTime()/ticksPerHour);
+                    time = time % 10;
                 } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
-                    value = (int)(w.getTime()/ticksPerHour);
-					time = (value - (value % 10))/10;
+                    time = (int)(w.getTime()/ticksPerHour);
+                    time = time / 10;
                 } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
-                    value = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
-					time = value % 10;
+                    time = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
+                    time = time % 10;
                 } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit
-                    value = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
-					time = (value - (value % 10))/10;
+                    time = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
+                    time = time/10;
                 } else time = -1;
             }
 

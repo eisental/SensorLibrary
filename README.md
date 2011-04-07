@@ -19,6 +19,11 @@ Installation
 
 Changelog
 ---------
+#### SensorLibrary 0.24 (07/04/11)
+- New daytime timefields - SECOND1, SECOND10, MINUTE1, MINUTE10, HOUR1 and HOUR10 - for sending 1s and 10s digits of the output directly from the daytime circuit. Thanks @zach-hinchy.
+- Fixed daytime output scaling when the number of output bits is less than required for the selected time field.
+- pirsensor is now using a faster algorithm for finding living entities in radius.
+
 #### SensorLibrary 0.23 (10/03/11)
 - daytime can output current time in other worlds. Coded by @dashkal.
 - Updated to work with RedstoneChips 0.84.

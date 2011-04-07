@@ -11,7 +11,7 @@ import org.tal.redstonechips.circuit.Circuit;
  * @author Tal Eisenberg
  */
 public class pirsensor extends Circuit {
-    private Vector center;
+    private Location center;
     private int radius = 10;
 
     @Override
@@ -24,7 +24,7 @@ public class pirsensor extends Circuit {
                 Location l = e.getLocation();
                 Vector v = new Vector(l.getX(), l.getY(), l.getZ());
 
-                if (v.isInSphere(center, radius)) {
+                if (isInRadius(center, l, radius)) {
                     // pir triggered
                     alarm = true;
                     if (hasDebuggers()) debug("PIR sensor triggered.");
@@ -63,8 +63,11 @@ public class pirsensor extends Circuit {
         }
 
         Location i = interfaceBlocks[0];
-        center = i.toVector();
+        center = i;
         return true;
     }
 
+    private static boolean isInRadius(Location loc1, Location loc2, double radius)  {
+        return (loc1.getX() - loc2.getX())*(loc1.getX() - loc2.getX()) + (loc1.getY() - loc2.getY())*(loc1.getY() - loc2.getY()) + (loc1.getZ() - loc2.getZ())*(loc1.getZ() - loc2.getZ()) <= radius*radius;
+    }
 }

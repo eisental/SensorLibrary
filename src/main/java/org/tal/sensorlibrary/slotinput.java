@@ -9,7 +9,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.tal.redstonechips.circuit.Circuit;
 
-public class slotdigits extends Circuit {
+public class slotinput extends Circuit {
 
     int numberOfSets, wordlength;
     int[] results;
@@ -78,7 +78,7 @@ public class slotdigits extends Circuit {
     }
 
     @Override
-    public void circuitDestroyed() {
+    public void circuitShutdown() {
         SensorLibrary.deregisterSlotdigitsCircuit(this);
     }
 

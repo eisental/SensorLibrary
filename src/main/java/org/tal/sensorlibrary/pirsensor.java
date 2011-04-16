@@ -68,6 +68,10 @@ public class pirsensor extends Circuit {
     }
 
     private static boolean isInRadius(Location loc1, Location loc2, double radius)  {
-        return (loc1.getX() - loc2.getX())*(loc1.getX() - loc2.getX()) + (loc1.getY() - loc2.getY())*(loc1.getY() - loc2.getY()) + (loc1.getZ() - loc2.getZ())*(loc1.getZ() - loc2.getZ()) <= radius*radius;
+        double dx = loc1.getX() - loc2.getX();
+        double dy = loc1.getY() - loc2.getY();
+        double dz = loc1.getZ() - loc2.getZ();
+
+        return dx*dx + dy*dy + dz*dz <= radius*radius;
     }
 }

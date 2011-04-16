@@ -47,7 +47,7 @@ public class photocell extends Circuit {
         }
 
         lightBlocks = findLightBlocks();
-System.out.println(":" + lightBlocks.length + " light blocks");
+
         return true;
     }
 

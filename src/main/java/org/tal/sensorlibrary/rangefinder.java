@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 import org.tal.redstonechips.circuit.Circuit;
+import org.tal.redstonechips.util.Locations;
 
 /**
  *
@@ -121,27 +122,11 @@ public class rangefinder extends Circuit {
         this.sendInt(0, outputs.length, out);
     }
 
-    private static BlockFace getLeftFace(BlockFace direction) {
-        if (direction==BlockFace.WEST) return BlockFace.SOUTH;
-        else if (direction==BlockFace.EAST) return BlockFace.NORTH;
-        else if (direction==BlockFace.SOUTH) return BlockFace.EAST;
-        else if (direction==BlockFace.NORTH) return BlockFace.WEST;
-        else throw new IllegalArgumentException("Invalid block face: " + direction);
-    }
-
-    private static BlockFace getRightFace(BlockFace direction) {
-        if (direction==BlockFace.WEST) return BlockFace.NORTH;
-        else if (direction==BlockFace.EAST) return BlockFace.SOUTH;
-        else if (direction==BlockFace.SOUTH) return BlockFace.WEST;
-        else if (direction==BlockFace.NORTH) return BlockFace.EAST;
-        else throw new IllegalArgumentException("Invalid block face: " + direction);
-    }
-
     private void createCuboid() {
         cuboid = new ArrayList<Location>();
         if (direction!=BlockFace.UP && direction!=BlockFace.DOWN) {
-            BlockFace l = getLeftFace(direction);
-            BlockFace r = getRightFace(direction);
+            BlockFace l = Locations.getLeftFace(direction);
+            BlockFace r = Locations.getRightFace(direction);
             for (int i=0; i<range; i++) { // 3x3xrange box
 
                 Block c = startBlock.getFace(direction, i+1);

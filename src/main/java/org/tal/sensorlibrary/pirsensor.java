@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import org.tal.redstonechips.circuit.Circuit;
+import org.tal.redstonechips.util.Locations;
 
 /**
  *
@@ -24,7 +25,7 @@ public class pirsensor extends Circuit {
                 Location l = e.getLocation();
                 Vector v = new Vector(l.getX(), l.getY(), l.getZ());
 
-                if (isInRadius(center, l, radius)) {
+                if (Locations.isInRadius(center, l, radius)) {
                     // pir triggered
                     alarm = true;
                     if (hasDebuggers()) debug("PIR sensor triggered.");
@@ -65,13 +66,5 @@ public class pirsensor extends Circuit {
         Location i = interfaceBlocks[0];
         center = i;
         return true;
-    }
-
-    private static boolean isInRadius(Location loc1, Location loc2, double radius)  {
-        double dx = loc1.getX() - loc2.getX();
-        double dy = loc1.getY() - loc2.getY();
-        double dz = loc1.getZ() - loc2.getZ();
-
-        return dx*dx + dy*dy + dz*dz <= radius*radius;
     }
 }

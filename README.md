@@ -8,8 +8,10 @@ a [RedstoneChips](http://eisental.github.com/RedstoneChips) circuit library cont
 - photocell - Detect the average light level around the chip's interface blocks.
 - daytime - Can output all kinds of real or game time measurements.
 - rangefinder - An ultrasonic transceiver for detecting the exact distance between the chip and anything.
+- beacon - Can force map chunks to stay loaded and monitors whether chunks in a region are loaded or not. 
+- slotinput - Input decimal numbers by choosing an inventory slot and clicking an interface block.
 
-__For much more information, visit the [circuitdocs](http://eisental.github.com/RedstoneChips/circuitdocs).__
+__For much more information, see the [circuitdocs](http://eisental.github.com/RedstoneChips/circuitdocs).__
 
 Installation
 -------------
@@ -19,6 +21,12 @@ Installation
 
 Changelog
 ---------
+#### SensorLibrary 0.25 (23/04/11)
+- Updated to work with RedstoneChips 0.9.
+- New slotinput circuit for decimal number input according to the selected inventory slot. Made by @Shamebot!
+- New beacon circuit for forcing chunks in a region to stay loaded or for monitoring whether a region of chunks is loaded or unloaded.
+- Removed annoying console spam made by the photocell circuit. 
+
 #### SensorLibrary 0.24 (07/04/11)
 - New daytime timefields - SECOND1, SECOND10, MINUTE1, MINUTE10, HOUR1 and HOUR10 - for sending 1s and 10s digits of the output directly from the daytime circuit. Thanks @zach-hinchy.
 - Fixed daytime output scaling when the number of output bits is less than required for the selected time field.

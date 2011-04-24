@@ -3,6 +3,8 @@ package org.tal.sensorlibrary;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.Action;
@@ -83,28 +85,31 @@ public class slotinput extends Circuit {
     }
 
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction()==Action.LEFT_CLICK_BLOCK) {
-            for(int interfaceBlockIndex=0; interfaceBlockIndex<interfaceBlocks.length;interfaceBlockIndex++) {
-                if (interfaceBlocks[interfaceBlockIndex].equals(event.getClickedBlock().getLocation())) {
-                    int result = replaceDigitOfInterfaceBlock(interfaceBlockIndex,event.getPlayer().getInventory().getHeldItemSlot()+1);
-                    info(event.getPlayer(), this.getCircuitClass() + ": " + result);
+        if (event.getAction()!=Action.LEFT_CLICK_BLOCK && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 
-                    if (interfaceSetIndex(interfaceBlockIndex)>=inputs.length || inputBits.get(interfaceSetIndex(interfaceBlockIndex))) {
-                        sendInt(outputStartIndex(interfaceBlockIndex),outputs.length/numberOfSets,result);
-                    }
-                }
-            }
-        } else if (event.getAction()==Action.RIGHT_CLICK_BLOCK) {
-            for(int interfaceBlockIndex=0; interfaceBlockIndex<interfaceBlocks.length;interfaceBlockIndex++) {
-                if (interfaceBlocks[interfaceBlockIndex].equals(event.getClickedBlock().getLocation())) {
-                    int result = replaceDigitOfInterfaceBlock(interfaceBlockIndex,0);
-                    info(event.getPlayer(), this.getCircuitClass() + ": " + result);
-                    
-                    if (interfaceSetIndex(interfaceBlockIndex)>=inputs.length || inputBits.get(interfaceSetIndex(interfaceBlockIndex))) {
-                        sendInt(outputStartIndex(interfaceBlockIndex),outputs.length/numberOfSets,result);
+        Circuit c = redstoneChips.getCircuitManager().getCircuitByStructureBlock(event.getClickedBlock());
+        if (c==this) {
+            Location loc = event.getClickedBlock().getLocation();
+
+            for (int i=0; i<interfaceBlocks.length; i++) {
+                if (interfaceBlocks[i].equals(loc)) {
+                    int newDigit;
+                    if (event.getAction()==Action.LEFT_CLICK_BLOCK)
+                        newDigit = event.getPlayer().getInventory().getHeldItemSlot()+1;
+                    else 
+                        newDigit = 0;
+
+                    int result = replaceDigitOfInterfaceBlock(i, newDigit);
+                    info(event.getPlayer(), this.getCircuitClass() + ": Setting number " + interfaceSetIndex(i) + " to " + ChatColor.LIGHT_PURPLE + result + redstoneChips.getPrefs().getInfoColor() + ".");
+
+                    if (interfaceSetIndex(i)>=inputs.length || inputBits.get(interfaceSetIndex(i))) {
+                        sendInt(outputStartIndex(i), outputs.length/numberOfSets, result);
                     }
 
-                    event.setCancelled(true);
+                    if (event.getAction()==Action.RIGHT_CLICK_BLOCK)
+                        event.setCancelled(true);
+
+                    break;
                 }
             }
         }
@@ -114,10 +119,10 @@ public class slotinput extends Circuit {
         return interfaceSetIndex(indexOfSet)*outputs.length/numberOfSets;
     }
 
-    private int replaceDigitOfInterfaceBlock(int interfaceBlockIndex, int replacement) {
-        int newResult=replaceDigit(results[interfaceSetIndex(interfaceBlockIndex)], indexInInterfaceSet(interfaceBlockIndex),replacement);
-        results[interfaceSetIndex(interfaceBlockIndex)] = newResult;
-        return Math.round(newResult);
+    private int replaceDigitOfInterfaceBlock(int idx, int replacement) {
+        int newResult = replaceDigit(results[interfaceSetIndex(idx)], indexInInterfaceSet(idx),replacement);
+        results[interfaceSetIndex(idx)] = newResult;
+        return newResult;
     }
 
     private int interfaceSetIndex(int interfaceBlockIndex) {
@@ -129,13 +134,14 @@ public class slotinput extends Circuit {
     }
 
     private int replaceDigit(int number,int index, int replacement) {
-        float remainder = (float)(number/Math.pow(10, index))%1;
-        number /= Math.pow(10, index+1);
-        number *=10;
-        number += replacement;
-        number *= Math.pow(10, index);
-        number += remainder*Math.pow(10, index);
-        return Math.round(number);
+        if (Integer.toString(number).length()<=index) {
+            number = ((int)Math.pow(10, index))*replacement + number;
+            return number;
+        } else {
+            char[] num = Integer.toString(number).toCharArray();
+            num[num.length-1-index] = Integer.toString(replacement).charAt(0);
+            return Integer.valueOf(new String(num));
+        }
     }
 
     @Override

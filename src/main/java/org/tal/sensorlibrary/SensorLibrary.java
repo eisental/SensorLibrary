@@ -22,7 +22,7 @@ public class SensorLibrary extends CircuitLibrary {
 
     @Override
     public Class[] getCircuitClasses() {
-        return new Class[] {photocell.class, pirsensor.class, rangefinder.class, daytime.class, slotinput.class, beacon.class};
+        return new Class[] {photocell.class, pirsensor.class, rangefinder.class, daytime.class, slotinput.class, beacon.class, spark.class};
     }
 
     @Override

@@ -40,6 +40,12 @@ public class photocell extends Circuit {
 
         if (outputs.length<1 || outputs.length>4) {
             error(sender, "Expecting 1 to 4 output data pins.");
+            return false;
+        }
+
+        if (interfaceBlocks.length==0) {
+            error(sender, "Expecting at least 1 interface block.");
+            return false;
         }
 
         lightBlocks = findLightBlocks();

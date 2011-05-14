@@ -19,6 +19,7 @@ import org.tal.redstonechips.util.Locations;
  */
 public class rangefinder extends Circuit {
     int range;
+    boolean scaleToFit = false;
     BlockFace direction = null;
     BlockFace left, right;
     Location origin;
@@ -62,6 +63,10 @@ public class rangefinder extends Circuit {
                 int x = Integer.parseInt(split[0]);
                 cuboidSize[0] = x;
                 cuboidSize[1] = split.length == 1 ? x : Integer.parseInt(split[1]);
+
+                if (args.length>2 && args[2].equalsIgnoreCase("scale")) {
+                    scaleToFit = true;
+                }
             }
         } else range = 10;
 
@@ -74,7 +79,8 @@ public class rangefinder extends Circuit {
             createCuboid(Locations.getFace(in, face));
 
             maxOutput = (int)Math.pow(2, outputs.length)-1;
-
+            if (range > maxOutput) scaleToFit = true;
+            
             List<Location> locs = new ArrayList<Location>();
             locs.addAll(Arrays.asList(structure));
             locs.add(Locations.getFace(in, direction));
@@ -120,7 +126,7 @@ public class rangefinder extends Circuit {
                         && (b.getData()==interfaceBlockType.getData() || interfaceBlockType.getData()==-1)) {
                 if (ret==null)
                     ret = face;
-                else throw new IllegalArgumentException("It's not allowed to use more than 1 note block.");
+                else throw new IllegalArgumentException("Found more than 1 interface blocks attached to an interface block.");
             }
 
         }
@@ -149,10 +155,11 @@ public class rangefinder extends Circuit {
 
         double dist = findDistance(objectsInRange);
 
-        int out =  (int)dist;
-        if(dist > maxOutput)
-            out = (int)((dist/range)*maxOutput);
-        if(out == 0 && dist > 0)
+        int out = (int)dist;
+
+        if (scaleToFit)
+            out = (int)Math.round((dist/range)*maxOutput);
+        if (out == 0 && dist > 0)
             out = 1;
         else if(dist > range)
             out = 0;
@@ -238,8 +245,6 @@ public class rangefinder extends Circuit {
                 if (vdist<minDist) {
                     minDist = vdist;
                 }
-
-                if (minDist<1) return minDist;
             }
 
         } else if(direction == BlockFace.NORTH || direction == BlockFace.SOUTH) {

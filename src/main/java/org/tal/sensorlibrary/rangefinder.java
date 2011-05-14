@@ -1,6 +1,7 @@
 package org.tal.sensorlibrary;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,20 +9,19 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
-import org.bukkit.util.BlockVector;
-import org.bukkit.util.Vector;
+import org.bukkit.material.MaterialData;
 import org.tal.redstonechips.circuit.Circuit;
+import org.tal.redstonechips.util.Locations;
 
 /**
  *
  * @author Tal Eisenberg
  */
 public class rangefinder extends Circuit {
-    int range = 10;
+    int range;
     BlockFace direction = null;
     BlockFace left, right;
-    Block startBlock;
-    BlockVector originVector;
+    Location origin;
     int[] cuboidSize = new int[]{3, 3};
     List<Location> cuboid;
     int maxOutput;
@@ -63,90 +63,130 @@ public class rangefinder extends Circuit {
                 cuboidSize[0] = x;
                 cuboidSize[1] = split.length == 1 ? x : Integer.parseInt(split[1]);
             }
-        }
+        } else range = 10;
 
-        Block iblock = world.getBlockAt(interfaceBlocks[0].getBlockX(), interfaceBlocks[0].getBlockY(), interfaceBlocks[0].getBlockZ());
+        Location in = interfaceBlocks[0];
 
-        for (BlockFace b : BlockFace.values()) {
-            Block block = iblock.getFace(b);
-            if (block.getType()==Material.NOTE_BLOCK) {
-                if (cuboid!=null) {
-                    error(sender, "Expecting no more than one note block.");
-                    return false;
-                } else {
-                    direction = b;
-                    startBlock = block;
-                    originVector = new BlockVector(block.getX()+0.5, block.getY()+0.5, block.getZ()+0.5);
-                    createCuboid();
-                }
-            }
-        }
+        try {
+            BlockFace face = findDirectionBlock(in);
+            direction = face;
+            findOriginVector();
+            createCuboid(Locations.getFace(in, face));
 
-        if (direction==null) {
-            error(sender, "Couldn't find a note block attached to any of the interface block's faces");
+            maxOutput = (int)Math.pow(2, outputs.length)-1;
+
+            List<Location> locs = new ArrayList<Location>();
+            locs.addAll(Arrays.asList(structure));
+            locs.add(Locations.getFace(in, direction));
+            structure = locs.toArray(new Location[locs.size()]);
+
+            return true;
+        } catch (IllegalArgumentException ie) {
+            error(sender, ie.getMessage());
             return false;
         }
+    }
 
-        maxOutput = (int)Math.pow(2, outputs.length)-1;
+    private void findOriginVector() {
+        origin = findFaceCenter(Locations.getFace(interfaceBlocks[0], direction), direction);
+    }
 
-        return true;
+    private Location findFaceCenter(Location l, BlockFace face) {
+        if (face==BlockFace.DOWN) {
+            return new Location(world, l.getBlockX()+0.5, l.getBlockY(), l.getBlockZ()+0.5);
+        } else if (face==BlockFace.UP) {
+            return new Location(world, l.getBlockX()+0.5, l.getBlockY()+1, l.getBlockZ()+0.5);
+        } else if (face==BlockFace.NORTH) {
+            return new Location(world, l.getBlockX(), l.getBlockY()+0.5, l.getBlockZ()+0.5);
+        } else if (face==BlockFace.SOUTH) {
+            return new Location(world, l.getBlockX()+1, l.getBlockY()+0.5, l.getBlockZ()+0.5);
+        } else if (face==BlockFace.EAST) {
+            return new Location(world, l.getBlockX()+0.5, l.getBlockY()+0.5, l.getBlockZ());
+        } else if (face==BlockFace.WEST) {
+            return new Location(world, l.getBlockX()+0.5, l.getBlockY()+0.5, l.getBlockZ()+1);
+        } else throw new IllegalArgumentException("Invalid direction: " + face.name());
+    }
+
+    private static final BlockFace[] faces = new BlockFace[] { BlockFace.NORTH, BlockFace.WEST, BlockFace.EAST, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN };
+
+    private BlockFace findDirectionBlock(Location l) throws IllegalArgumentException {
+        MaterialData interfaceBlockType = redstoneChips.getPrefs().getInterfaceBlockType();
+        Block block = l.getBlock();
+        BlockFace ret = null;
+
+        for (BlockFace face : faces) {
+            Block b = block.getFace(face);
+            if (b.getType()==interfaceBlockType.getItemType()
+                        && (b.getData()==interfaceBlockType.getData() || interfaceBlockType.getData()==-1)) {
+                if (ret==null)
+                    ret = face;
+                else throw new IllegalArgumentException("It's not allowed to use more than 1 note block.");
+            }
+
+        }
+
+        if (ret==null)
+            throw new IllegalArgumentException("Couldn't find another interface blcok attached to any of the interface block's faces.");
+        return ret;
     }
 
     private void trigger() {
-        // go over each block in the direction until we find either an entity or a non air block.
-
-        List<Vector> objectsInRange = new ArrayList<Vector>();
-
+        List<Location> objectsInRange = new ArrayList<Location>();
+        BlockFace oppositeFace = direction.getOppositeFace();
         for (Location l : cuboid) { 
             int type = world.getBlockTypeIdAt(l.getBlockX(), l.getBlockY(), l.getBlockZ());
             if (type!=Material.AIR.getId() && type!=Material.WATER.getId() && type!=Material.STATIONARY_WATER.getId()) {
-                objectsInRange.add(new BlockVector(l.getBlockX()+0.5, l.getBlockY()+0.5, l.getBlockZ()+0.5));
+                objectsInRange.add(findFaceCenter(l, oppositeFace));
                 break;
             }
         }
 
         for (Entity e : world.getEntities()) {
             if (cuboid.contains(new Location(e.getWorld(), e.getLocation().getBlockX(), e.getLocation().getBlockY(), e.getLocation().getBlockZ()))) {
-                objectsInRange.add(new Vector(e.getLocation().getX(), e.getLocation().getY(), e.getLocation().getZ()));
+                objectsInRange.add(e.getLocation());
             }
         }
-        double dist = isInRange(objectsInRange);
+
+        double dist = findDistance(objectsInRange);
 
         int out =  (int)dist;
-        if(dist > 15)
+        if(dist > maxOutput)
             out = (int)((dist/range)*maxOutput);
         if(out == 0 && dist > 0)
             out = 1;
         else if(dist > range)
             out = 0;
-        if (hasDebuggers()) debug("Found object at " + dist + " meters.");
+
+        if (dist<=range && hasDebuggers()) debug("Found object at " + dist + " meters.");
+        else debug("No object found in range.");
+
         this.sendInt(0, outputs.length, out);
     }
 
-    private void createCuboid() {
+    private void createCuboid(Location startBlock) {
         cuboid = new ArrayList<Location>();
         if (direction==BlockFace.UP || direction==BlockFace.DOWN) {
             BlockFace direction2 = BlockFace.EAST;
             BlockFace direction2b = BlockFace.WEST;
-            Block t1 = startBlock.getFace(direction);
+            Location t1 = Locations.getFace(startBlock, direction);
             for (int i=0; i<range; i++) {
-                Block t2 = t1;
-                Block t2b = t1;
+                Location t2 = t1;
+                Location t2b = t1;
                 for (int i2=1; i2<cuboidSize[0];) {
-                    t2 = t2.getFace(direction2);
-                    cuboid.add(t2.getLocation());
+                    t2 = Locations.getFace(t2, direction2);
+                    cuboid.add(t2);
                     cuboidAddDirection(cuboid, t2, BlockFace.NORTH, 0, (int)Math.ceil((cuboidSize[1]-1)/2d));
                     i2++;
                     if(i2<cuboidSize[0])
                     {
-                        t2b = t2b.getFace(direction2b);
-                        cuboid.add(t2b.getLocation());
+                        t2b = Locations.getFace(t2b, direction2b);
+                        cuboid.add(t2b);
                         cuboidAddDirection(cuboid, t2b, BlockFace.SOUTH, 0, (int)((cuboidSize[1]-1)/2));
                         i2++;
                     }
                 }
-                cuboid.add(t1.getLocation());
-                t1 = t1.getFace(direction);
+                cuboid.add(t1);
+                t1 = Locations.getFace(t1, direction);
             }
         } else {
             BlockFace direction2 = null;
@@ -156,67 +196,70 @@ public class rangefinder extends Circuit {
             else if(direction == BlockFace.NORTH || direction == BlockFace.SOUTH)
                 direction2 = BlockFace.EAST;
             direction2b = direction2.getOppositeFace();
-            Block t1 = startBlock.getFace(direction);
+            Location t1 = Locations.getFace(startBlock, direction);
             for (int i=0; i<range; i++) {
-                Block t2 = t1;
-                Block t2b = t1;
+                Location t2 = t1;
+                Location t2b = t1;
                 for (int i2=1; i2<cuboidSize[0];) {
-                    t2 = t2.getFace(direction2);
-                    cuboid.add(t2.getLocation());
+                    t2 = Locations.getFace(t2, direction2);
+                    cuboid.add(t2);
                     cuboidAddDirection(cuboid, t2, BlockFace.UP, 0, (int)Math.ceil((cuboidSize[1]-1)/2d));
                     i2++;
                     if(i2<cuboidSize[0])
                     {
-                        t2b = t2b.getFace(direction2b);
-                        cuboid.add(t2b.getLocation());
+                        t2b = Locations.getFace(t2b, direction2b);
+                        cuboid.add(t2b);
                         cuboidAddDirection(cuboid, t2b, BlockFace.DOWN, 0, (int)((cuboidSize[1]-1)/2));
                         i2++;
                     }
                 }
-                cuboid.add(t1.getLocation());
-                t1 = t1.getFace(direction);
+                cuboid.add(t1);
+                t1 = Locations.getFace(t1, direction);
             }
         }
     }
-    private void cuboidAddDirection(List<Location> cuboid, Block b, BlockFace direction, int i, int max)
+
+    private void cuboidAddDirection(List<Location> cuboid, Location l, BlockFace direction, int i, int max)
     {
         if(i < max)
         {
-            b = b.getFace(direction);
-            cuboid.add(b.getLocation());
-            cuboidAddDirection(cuboid, b, direction, ++i, max);
+            l = Locations.getFace(l, direction);
+            cuboid.add(l);
+            cuboidAddDirection(cuboid, l, direction, ++i, max);
         }
     }
-    private double isInRange(List<Vector> objectsInRange)
-    {
+
+    private double findDistance(List<Location> objectsInRange) {
         double minDist = range+1;
-        if(direction == BlockFace.EAST || direction == BlockFace.WEST)
-        {
-            for (Vector v : objectsInRange) {
-                double vdist = Math.abs(originVector.getZ()-v.getZ());
+
+        if(direction == BlockFace.EAST || direction == BlockFace.WEST) {
+            for (Location loc : objectsInRange) {
+                double vdist = Math.abs(origin.getZ()-loc.getZ());
+                if (vdist<minDist) {
+                    minDist = vdist;
+                }
+
+                if (minDist<1) return minDist;
+            }
+
+        } else if(direction == BlockFace.NORTH || direction == BlockFace.SOUTH) {
+            for (Location loc : objectsInRange) {
+                double vdist = Math.abs(origin.getX()-loc.getX());
                 if (vdist<minDist) {
                     minDist = vdist;
                 }
             }
-        }
-        else if(direction == BlockFace.NORTH || direction == BlockFace.SOUTH)
-        {
-            for (Vector v : objectsInRange) {
-                double vdist = Math.abs(originVector.getX()-v.getX());
+
+        } else if(direction == BlockFace.UP || direction == BlockFace.DOWN) {
+            for (Location loc : objectsInRange) {
+                double vdist = Math.abs(origin.getY()-loc.getY());
                 if (vdist<minDist) {
                     minDist = vdist;
                 }
             }
+
         }
-        else if(direction == BlockFace.UP || direction == BlockFace.DOWN)
-        {
-            for (Vector v : objectsInRange) {
-                double vdist = Math.abs(originVector.getY()-v.getY());
-                if (vdist<minDist) {
-                    minDist = vdist;
-                }
-            }
-        }
+
         return minDist;
     }
 }

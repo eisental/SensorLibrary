@@ -21,7 +21,7 @@ public class spark extends Circuit {
     public void inputChange(int inIdx, boolean state) {
         if (bin) {
             if (inIdx==0 && state) {
-                int idx = BitSetUtils.bitSetToSignedInt(inputBits, 1, inputs.length-1);
+                int idx = BitSetUtils.bitSetToUnsignedInt(inputBits, 1, inputs.length-1);
                 if (idx<interfaceBlocks.length)
                     world.strikeLightning(interfaceBlocks[idx]);
             }
@@ -58,6 +58,11 @@ public class spark extends Circuit {
         }
 
         return true;
+    }
+
+    @Override
+    protected boolean isStateless() {
+        return false;
     }
 
 }

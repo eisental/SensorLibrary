@@ -7,7 +7,7 @@ import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.tal.redstonechips.channels.TransmittingCircuit;
+import org.tal.redstonechips.channel.TransmittingCircuit;
 import org.tal.redstonechips.util.BitSet7;
 import org.tal.redstonechips.util.ChunkLocation;
 
@@ -57,7 +57,7 @@ public class beacon extends TransmittingCircuit {
         bit = new BitSet7(1);
         centerChunk = ChunkLocation.fromLocation(interfaceBlocks[0]);
 
-        parseChannelString(args[0]);
+        initWireless(args[0]);
 
         for (int x=centerChunk.getX()-radius; x<=centerChunk.getX()+radius; x++) {
             for (int z=centerChunk.getZ()-radius; z<=centerChunk.getZ()+radius; z++) {

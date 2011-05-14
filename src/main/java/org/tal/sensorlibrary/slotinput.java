@@ -74,14 +74,14 @@ public class slotinput extends Circuit {
         results = new int[numberOfSets];
         Arrays.fill(results, 0);
 
-        SensorLibrary.registerSlotdigitsCircuit(this);
+        SensorLibrary.registerSlotinputCircuit(this);
 
         return true;
     }
 
     @Override
     public void circuitShutdown() {
-        SensorLibrary.deregisterSlotdigitsCircuit(this);
+        SensorLibrary.deregisterSlotinputCircuit(this);
     }
 
     public void onPlayerInteract(PlayerInteractEvent event) {

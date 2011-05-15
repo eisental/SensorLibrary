@@ -57,7 +57,7 @@ public class beacon extends TransmittingCircuit {
         bit = new BitSet7(1);
         centerChunk = ChunkLocation.fromLocation(interfaceBlocks[0]);
 
-        initWireless(args[0]);
+        initWireless(sender, args[0]);
 
         for (int x=centerChunk.getX()-radius; x<=centerChunk.getX()+radius; x++) {
             for (int z=centerChunk.getZ()-radius; z<=centerChunk.getZ()+radius; z++) {
@@ -82,7 +82,7 @@ public class beacon extends TransmittingCircuit {
     }
 
     @Override
-    public int getLength() {
+    public int getChannelLength() {
         return 1;
     }
 

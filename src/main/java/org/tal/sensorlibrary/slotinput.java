@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.tal.redstonechips.circuit.Circuit;
+import org.tal.redstonechips.util.BitSetUtils;
 
 public class slotinput extends Circuit {
 
@@ -76,6 +77,7 @@ public class slotinput extends Circuit {
 
         SensorLibrary.registerSlotinputCircuit(this);
 
+        if (sender!=null) resetOutputs();
         return true;
     }
 

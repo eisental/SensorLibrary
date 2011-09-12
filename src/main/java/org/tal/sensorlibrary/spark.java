@@ -43,7 +43,7 @@ public class spark extends Circuit {
         if (bin) {
             if (Math.pow(2,inputs.length-1)<interfaceBlocks.length) {
                 int expectedInputs = (int)Math.ceil(Math.log(interfaceBlocks.length)/Math.log(2))+1;
-                error(sender, "Expecting " + expectedInputs + " inputs for " + interfaceBlocks.length + " interface block(s)");
+                error(sender, "Expecting at least " + expectedInputs + " inputs for " + interfaceBlocks.length + " interface block(s)");
                 return false;
             }
         } else {

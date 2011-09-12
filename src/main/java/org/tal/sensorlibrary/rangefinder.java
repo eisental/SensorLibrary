@@ -59,13 +59,20 @@ public class rangefinder extends Circuit {
                 return false;
             }
             if (args.length>1) {
-                String[] split = args[1].split("x");
-                int x = Integer.parseInt(split[0]);
-                cuboidSize[0] = x;
-                cuboidSize[1] = split.length == 1 ? x : Integer.parseInt(split[1]);
+                if (args[1].equalsIgnoreCase("scale")) scaleToFit = true;
+                else {
+                    String[] split = args[1].split("x");
+                    try {
+                        int x = Integer.parseInt(split[0]);
+                        cuboidSize[0] = x;
+                        cuboidSize[1] = split.length == 1 ? x : Integer.parseInt(split[1]);
+                    } catch (NumberFormatException ne) {
+                        error(sender, "Bad size argument: " + args[1]);
+                    }
 
-                if (args.length>2 && args[2].equalsIgnoreCase("scale")) {
-                    scaleToFit = true;
+                    if (args.length>2 && args[2].equalsIgnoreCase("scale")) {
+                        scaleToFit = true;
+                    }
                 }
             }
         } else range = 10;
@@ -80,7 +87,6 @@ public class rangefinder extends Circuit {
 
             maxOutput = (int)Math.pow(2, outputs.length)-1;
             if (range > maxOutput) scaleToFit = true;
-            
             List<Location> locs = new ArrayList<Location>();
             locs.addAll(Arrays.asList(structure));
             locs.add(Locations.getFace(in, direction));
@@ -121,18 +127,18 @@ public class rangefinder extends Circuit {
         BlockFace ret = null;
 
         for (BlockFace face : faces) {
-            Block b = block.getFace(face);
+            Block b = block.getRelative(face);
             if (b.getType()==interfaceBlockType.getItemType()
                         && (b.getData()==interfaceBlockType.getData() || interfaceBlockType.getData()==-1)) {
                 if (ret==null)
                     ret = face;
-                else throw new IllegalArgumentException("Found more than 1 interface blocks attached to an interface block.");
+                else throw new IllegalArgumentException("Found too many interface blocks attached to each other.");
             }
 
         }
 
         if (ret==null)
-            throw new IllegalArgumentException("Couldn't find another interface blcok attached to any of the interface block's faces.");
+            throw new IllegalArgumentException("Couldn't find another interface block attached to any of the interface block's faces.");
         return ret;
     }
 

@@ -78,7 +78,7 @@ public class photocell extends Circuit {
         for (Location l : interfaceBlocks) {
             Block iBlock = world.getBlockAt(l);
             for (BlockFace face : lightFaces) {
-                Block faceBlock = iBlock.getFace(face);
+                Block faceBlock = iBlock.getRelative(face);
                 if (!this.isPartOfStructure(faceBlock))
                     blocks.add(faceBlock.getLocation());
             }

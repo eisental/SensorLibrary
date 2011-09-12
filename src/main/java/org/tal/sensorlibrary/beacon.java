@@ -122,7 +122,7 @@ public class beacon extends TransmittingCircuit {
     }
 
     private boolean isChunkInRange(ChunkLocation chunk) {
-        if (chunk.getWorld().getId()!=world.getId()) return false;
+        if (chunk.getWorld().getUID()!=world.getUID()) return false;
 
         int dx = centerChunk.getX() - chunk.getX();
         int dz = centerChunk.getZ() - chunk.getZ();

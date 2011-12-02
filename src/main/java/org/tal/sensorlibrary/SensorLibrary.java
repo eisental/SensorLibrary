@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.vehicle.VehicleListener;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
@@ -22,10 +23,11 @@ public class SensorLibrary extends CircuitLibrary {
     private static List<slotinput> slotinputCircuits = new ArrayList<slotinput>();
     private static List<beacon> chunkbeaconCircuits = new ArrayList<beacon>();
     private static List<vehicleid> vehicleidCircuits = new ArrayList<vehicleid>();
+	private static List<playerid> playeridCircuits = new ArrayList<playerid>();
 
     @Override
     public Class[] getCircuitClasses() {
-        return new Class[] {photocell.class, pirsensor.class, rangefinder.class, daytime.class, slotinput.class, beacon.class, spark.class, vehicleid.class};
+        return new Class[] {photocell.class, pirsensor.class, rangefinder.class, daytime.class, slotinput.class, beacon.class, spark.class, vehicleid.class, playerid.class};
     }
 
     @Override
@@ -35,6 +37,12 @@ public class SensorLibrary extends CircuitLibrary {
             public void onPlayerInteract(PlayerInteractEvent event) {
                 for (slotinput circuit : slotinputCircuits)
                     circuit.onPlayerInteract(event);
+            }
+			
+			@Override
+            public void onPlayerMove(PlayerMoveEvent event) {
+                for (playerid circuit : playeridCircuits)
+                    circuit.onPlayerMove(event);
             }
         };
 
@@ -63,6 +71,7 @@ public class SensorLibrary extends CircuitLibrary {
         };
 
         getServer().getPluginManager().registerEvent(Type.PLAYER_INTERACT, playerListener, Priority.Normal, this);
+		getServer().getPluginManager().registerEvent(Type.PLAYER_MOVE, playerListener, Priority.Normal, this);
         getServer().getPluginManager().registerEvent(Type.CHUNK_LOAD, chunkListener, Priority.Monitor, this);
         getServer().getPluginManager().registerEvent(Type.CHUNK_UNLOAD, chunkListener, Priority.Normal, this);
         getServer().getPluginManager().registerEvent(Type.VEHICLE_MOVE, vehicleListener, Priority.Monitor, this);
@@ -91,7 +100,16 @@ public class SensorLibrary extends CircuitLibrary {
             vehicleidCircuits.add(circuit);
     }
 
-    static boolean deregisterVehicelidCircuit(vehicleid circuit) {
+    static boolean deregisterVehicleidCircuit(vehicleid circuit) {
         return vehicleidCircuits.remove(circuit);
+    }
+	
+	static void registerPlayeridCircuit(playerid circuit) {
+        if (!playeridCircuits.contains(circuit))
+            playeridCircuits.add(circuit);
+    }
+
+    static boolean deregisterPlayeridCircuit(playerid circuit) {
+        return playeridCircuits.remove(circuit);
     }
 }

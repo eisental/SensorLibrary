@@ -3,14 +3,14 @@ package org.tal.sensorlibrary;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.tal.redstonechips.circuit.Circuit;
 
 /**
  *
  * @author Tal Eisenberg
  */
-public class vehicleid extends Circuit {
+public class playerid extends Circuit {
     private int resetPin = 1;
     private int disablePin = 0;
     private boolean disabled = false;
@@ -24,9 +24,9 @@ public class vehicleid extends Circuit {
             disabled = state;
             if (disabled) {
                 for (int i=0; i<outputs.length; i++) sendOutput(i, false);
-                SensorLibrary.deregisterVehicleidCircuit(this);
+                SensorLibrary.deregisterPlayeridCircuit(this);
             } else {
-                SensorLibrary.registerVehicleidCircuit(this);
+                SensorLibrary.registerPlayeridCircuit(this);
             }
         }
     }
@@ -38,11 +38,11 @@ public class vehicleid extends Circuit {
             return false;
         }
 
-        SensorLibrary.registerVehicleidCircuit(this);
+        SensorLibrary.registerPlayeridCircuit(this);
         return true;
     }
 
-    void onVehicleMove(VehicleMoveEvent event) {
+    void onPlayerMove(PlayerMoveEvent event) {
         if (disabled) return;
 
         Location to = event.getTo();
@@ -53,12 +53,12 @@ public class vehicleid extends Circuit {
             if (to.getBlockX()==in.getBlockX() && to.getBlockY()-in.getBlockY()<=1 && to.getBlockZ()==in.getBlockZ()) {
                 found = true;
                 if (i!=lastInterface) {
-                    int vid = event.getVehicle().getEntityId();
+                    int pid = event.getPlayer().getEntityId();
                     if (hasDebuggers()) {
-                        debug("Vehicle " + vid + " detected at interface block " + i);
+                        debug("Player " + pid + " detected at interface block " + i);
                     }
 
-                    sendInt(1, outputs.length-1, vid);
+                    sendInt(1, outputs.length-1, pid);
                     sendOutput(0, true);
                     sendOutput(0, false);
                     
@@ -75,6 +75,6 @@ public class vehicleid extends Circuit {
 
     @Override
     public void circuitShutdown() {
-        SensorLibrary.deregisterVehicleidCircuit(this);
+        SensorLibrary.deregisterPlayeridCircuit(this);
     }
 }

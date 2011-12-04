@@ -21,6 +21,14 @@ Installation
 
 Changelog
 ---------
+#### SensorLibrary 0.3 (4/12/11)
+- New spark chip. 
+- New self-triggering vehicleid and playerid sensor chips.
+- Rangefinder direction is determined by two interface blocks instead of interface+noteblock. The extra interface block is also part of structure.
+- Many changes to the rangefiner: Added a optional size argument on the third line. Format WxH ex: 2x3 or W&H ex: 1 Changed Detection Methods (by @Cutch . Thanks!)
+- slotinput will reset its output levers on init.
+- photocell requires at least 1 interface block.
+
 #### SensorLibrary 0.25 (23/04/11)
 - Updated to work with RedstoneChips 0.9.
 - New slotinput circuit for decimal number input according to the selected inventory slot. Made by @Shamebot!

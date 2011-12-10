@@ -1,5 +1,6 @@
 package org.tal.sensorlibrary;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,14 @@ public class rangefinder extends Circuit {
     int[] cuboidSize = new int[]{3, 3};
     List<Location> cuboid;
     int maxOutput;
-
+    
+    static private final NumberFormat debugFormat;
+    static {
+        debugFormat = NumberFormat.getNumberInstance();
+        debugFormat.setMaximumFractionDigits(2);
+    }
+    
+    
     @Override
     public void inputChange(int inIdx, boolean state) {
         if (state) {
@@ -170,7 +178,7 @@ public class rangefinder extends Circuit {
         else if(dist > range)
             out = 0;
 
-        if (dist<=range && hasDebuggers()) debug("Found object at " + dist + " meters.");
+        if (dist<=range && hasDebuggers()) debug("Found object at " + debugFormat.format(dist) + " meters.");
         else debug("No object found in range.");
 
         this.sendInt(0, outputs.length, out);

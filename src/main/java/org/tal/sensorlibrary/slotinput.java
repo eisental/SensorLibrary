@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.tal.redstonechips.circuit.Circuit;
-import org.tal.redstonechips.util.BitSetUtils;
 
 public class slotinput extends Circuit {
 
@@ -102,7 +101,7 @@ public class slotinput extends Circuit {
                         newDigit = 0;
 
                     int result = replaceDigitOfInterfaceBlock(i, newDigit);
-                    info(event.getPlayer(), this.getCircuitClass() + ": Setting number " + interfaceSetIndex(i) + " to " + ChatColor.LIGHT_PURPLE + result + redstoneChips.getPrefs().getInfoColor() + ".");
+                    info(event.getPlayer(), c.getChipString() + ": Setting number " + interfaceSetIndex(i) + " to " + ChatColor.LIGHT_PURPLE + result + redstoneChips.getPrefs().getInfoColor() + ".");
 
                     if (interfaceSetIndex(i)>=inputs.length || inputBits.get(interfaceSetIndex(i))) {
                         sendInt(outputStartIndex(i), outputs.length/numberOfSets, result);

@@ -23,7 +23,7 @@ public class SensorLibrary extends CircuitLibrary {
     private static List<slotinput> slotinputCircuits = new ArrayList<slotinput>();
     private static List<beacon> chunkbeaconCircuits = new ArrayList<beacon>();
     private static List<vehicleid> vehicleidCircuits = new ArrayList<vehicleid>();
-	private static List<playerid> playeridCircuits = new ArrayList<playerid>();
+    private static List<playerid> playeridCircuits = new ArrayList<playerid>();
 
     @Override
     public Class[] getCircuitClasses() {
@@ -38,8 +38,8 @@ public class SensorLibrary extends CircuitLibrary {
                 for (slotinput circuit : slotinputCircuits)
                     circuit.onPlayerInteract(event);
             }
-			
-			@Override
+            
+            @Override
             public void onPlayerMove(PlayerMoveEvent event) {
                 for (playerid circuit : playeridCircuits)
                     circuit.onPlayerMove(event);

@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.tal.redstonechips.circuit.Circuit;
+import org.tal.redstonechips.circuit.InterfaceBlock;
 
 /**
  *
@@ -20,7 +21,7 @@ public class photocell extends Circuit {
 
     @Override
     public void inputChange(int inIdx, boolean state) {
-        Block interfaceBlock = world.getBlockAt(interfaceBlocks[0].getBlockX(), interfaceBlocks[0].getBlockY(), interfaceBlocks[0].getBlockZ());
+        Block interfaceBlock = interfaceBlocks[0].getLocation().getBlock();
         int level = averageLightLevelAround(interfaceBlock);
         if (hasDebuggers()) debug("Average light level is " + level + " (in the range of 0-15).");
 
@@ -75,8 +76,8 @@ public class photocell extends Circuit {
     private Location[] findLightBlocks() {
         List<Location> blocks = new ArrayList<Location>();
 
-        for (Location l : interfaceBlocks) {
-            Block iBlock = world.getBlockAt(l);
+        for (InterfaceBlock i : interfaceBlocks) {
+            Block iBlock = i.getLocation().getBlock();
             for (BlockFace face : lightFaces) {
                 Block faceBlock = iBlock.getRelative(face);
                 if (!this.isPartOfStructure(faceBlock))

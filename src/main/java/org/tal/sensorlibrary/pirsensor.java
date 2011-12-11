@@ -63,7 +63,7 @@ public class pirsensor extends Circuit {
             }
         }
 
-        Location i = interfaceBlocks[0];
+        Location i = interfaceBlocks[0].getLocation();
         center = i;
         return true;
     }

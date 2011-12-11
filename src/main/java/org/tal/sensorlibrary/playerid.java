@@ -13,7 +13,7 @@ import org.tal.redstonechips.circuit.Circuit;
 public class playerid extends Circuit {
     private int resetPin = 1;
     private int disablePin = 0;
-    private boolean disabled = false;
+    private boolean pinDisabled = false;
     private int lastInterface = -1;
 
     @Override
@@ -21,8 +21,8 @@ public class playerid extends Circuit {
         if (inIdx==resetPin && state) {
             for (int i=0; i<outputs.length; i++) sendOutput(i, false);
         } else if (inIdx==disablePin) {
-            disabled = state;
-            if (disabled) {
+            pinDisabled = state;
+            if (pinDisabled) {
                 for (int i=0; i<outputs.length; i++) sendOutput(i, false);
                 SensorLibrary.deregisterPlayeridCircuit(this);
             } else {
@@ -43,13 +43,13 @@ public class playerid extends Circuit {
     }
 
     void onPlayerMove(PlayerMoveEvent event) {
-        if (disabled) return;
+        if (pinDisabled) return;
 
         Location to = event.getTo();
         boolean found = false;
 
         for (int i=0; i<interfaceBlocks.length; i++) {
-            Location in = interfaceBlocks[i];
+            Location in = interfaceBlocks[i].getLocation();
             if (to.getBlockX()==in.getBlockX() && to.getBlockY()-in.getBlockY()<=1 && to.getBlockZ()==in.getBlockZ()) {
                 found = true;
                 if (i!=lastInterface) {

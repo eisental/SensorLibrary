@@ -55,7 +55,7 @@ public class beacon extends TransmittingCircuit {
         }
 
         bit = new BitSet7(1);
-        centerChunk = ChunkLocation.fromLocation(interfaceBlocks[0]);
+        centerChunk = ChunkLocation.fromLocation(interfaceBlocks[0].getLocation());
 
         initWireless(sender, args[0]);
 

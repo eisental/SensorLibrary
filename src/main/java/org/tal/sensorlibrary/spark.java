@@ -19,9 +19,9 @@ public class spark extends Circuit {
             if (inIdx==0 && state) {
                 int idx = BitSetUtils.bitSetToUnsignedInt(inputBits, 1, inputs.length-1);
                 if (idx<interfaceBlocks.length)
-                    world.strikeLightning(interfaceBlocks[idx]);
+                    world.strikeLightning(interfaceBlocks[idx].getLocation());
             }
-        } else if (state) world.strikeLightning(interfaceBlocks[inIdx]);
+        } else if (state) world.strikeLightning(interfaceBlocks[inIdx].getLocation());
     }
 
     @Override

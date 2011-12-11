@@ -85,7 +85,7 @@ public class rangefinder extends Circuit {
             }
         } else range = 10;
 
-        Location in = interfaceBlocks[0];
+        Location in = interfaceBlocks[0].getLocation();
 
         try {
             BlockFace face = findDirectionBlock(in);
@@ -108,7 +108,7 @@ public class rangefinder extends Circuit {
     }
 
     private void findOriginVector() {
-        origin = findFaceCenter(Locations.getFace(interfaceBlocks[0], direction), direction);
+        origin = findFaceCenter(Locations.getFace(interfaceBlocks[0].getLocation(), direction), direction);
     }
 
     private Location findFaceCenter(Location l, BlockFace face) {

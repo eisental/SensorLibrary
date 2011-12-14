@@ -88,7 +88,7 @@ public class slotinput extends Circuit {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction()!=Action.LEFT_CLICK_BLOCK && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 
-        Circuit c = redstoneChips.getCircuitManager().getCircuitByStructureBlock(event.getClickedBlock());
+        Circuit c = redstoneChips.getCircuitManager().getCircuitByStructureBlock(event.getClickedBlock().getLocation());
         if (c==this) {
             Location loc = event.getClickedBlock().getLocation();
 

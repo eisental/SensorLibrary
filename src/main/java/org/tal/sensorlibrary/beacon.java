@@ -77,8 +77,8 @@ public class beacon extends TransmittingCircuit {
 
     @Override
     public void circuitShutdown() {
+        super.circuitShutdown();
         SensorLibrary.deregisterChunkbeaconCircuit(this);
-        redstoneChips.removeTransmitter(this);
     }
 
     @Override

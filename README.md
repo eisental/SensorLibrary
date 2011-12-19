@@ -15,12 +15,15 @@ __For much more information, see the [circuitdocs](http://eisental.github.com/Re
 
 Installation
 -------------
-* Make sure you have the core [RedstoneChips](http://eisental.github.com/RedstoneChips) plugin installed in your craftbukkit plugins folder.
-* Download the latest [SensorLibrary jar file](https://github.com/downloads/eisental/SensorLibrary/SensorLibrary-beta.jar).
-* Copy jar file into the plugins folder of your craftbukkit installation.
+* Download the latest RedstoneChips bundle [RedstoneChips](http://eisental.github.com/RedstoneChips).
+* Copy all jar files into the plugins folder of your craftbukkit installation.
 
 Changelog
 ---------
+#### SensorLibrary 0.31 (19/12/11)
+- Some cosmetic message changes.
+- Updated to work with RC0.93.
+
 #### SensorLibrary 0.3 (4/12/11)
 - New spark chip. 
 - New self-triggering vehicleid and playerid sensor chips.

@@ -77,7 +77,6 @@ public class beacon extends Circuit {
 
     @Override
     public void circuitShutdown() {
-        super.circuitShutdown();
         SensorLibrary.deregisterChunkbeaconCircuit(this);
     }
 

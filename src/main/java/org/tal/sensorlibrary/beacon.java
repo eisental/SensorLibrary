@@ -7,22 +7,23 @@ import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.tal.redstonechips.channel.TransmittingCircuit;
-import org.tal.redstonechips.util.BitSet7;
+import org.tal.redstonechips.circuit.Circuit;
+import org.tal.redstonechips.wireless.Transmitter;
 import org.tal.redstonechips.util.ChunkLocation;
 
 /**
  *
  * @author Tal Eisenberg
  */
-public class beacon extends TransmittingCircuit {
-    private BitSet7 bit;
+public class beacon extends Circuit {
     private boolean keepalive = false;
     private int radius = 0;
     
     private int loadCount = 0;
     private ChunkLocation centerChunk;
-
+    
+    private Transmitter transmitter;
+    
     @Override
     public void inputChange(int inIdx, boolean state) { 
         if (inIdx==0) keepalive = state;
@@ -54,10 +55,9 @@ public class beacon extends TransmittingCircuit {
             }
         }
 
-        bit = new BitSet7(1);
         centerChunk = ChunkLocation.fromLocation(interfaceBlocks[0].getLocation());
-
-        initWireless(sender, args[0]);
+        transmitter = new Transmitter();
+        transmitter.init(sender, args[0], 1, this);
 
         for (int x=centerChunk.getX()-radius; x<=centerChunk.getX()+radius; x++) {
             for (int z=centerChunk.getZ()-radius; z<=centerChunk.getZ()+radius; z++) {
@@ -79,11 +79,6 @@ public class beacon extends TransmittingCircuit {
     public void circuitShutdown() {
         super.circuitShutdown();
         SensorLibrary.deregisterChunkbeaconCircuit(this);
-    }
-
-    @Override
-    public int getChannelLength() {
-        return 1;
     }
 
     void onChunkLoad(ChunkLoadEvent event) {
@@ -109,16 +104,13 @@ public class beacon extends TransmittingCircuit {
 
     private void sendBit() {
         boolean loaded = loadCount>0;
-        if (bit.get(0)==loaded) return;
         
         if (hasDebuggers()) {
             if (loaded) debug("Region loaded.");
             else debug("Region unloaded.");
         }
         
-        bit.set(0, loaded);
-        
-        getChannel().transmit(bit, getStartBit(), 1);
+        transmitter.transmit(loaded);
     }
 
     private boolean isChunkInRange(ChunkLocation chunk) {

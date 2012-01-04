@@ -8,7 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.tal.redstonechips.circuit.Circuit;
-import org.tal.redstonechips.circuit.InterfaceBlock;
+import org.tal.redstonechips.circuit.io.InterfaceBlock;
 
 /**
  *

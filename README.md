@@ -10,6 +10,9 @@ a [RedstoneChips](http://eisental.github.com/RedstoneChips) circuit library cont
 - rangefinder - An ultrasonic transceiver for detecting the exact distance between the chip and anything.
 - beacon - Can force map chunks to stay loaded and monitors whether chunks in a region are loaded or not. 
 - slotinput - Input decimal numbers by choosing an inventory slot and clicking an interface block.
+- vehicleid - Track a vehicle entity id number as it passes over the chip interface blocks.
+- playerid - Track a player entity id.
+- spark - Strike thunders on command.
 
 __For much more information, see the [circuitdocs](http://eisental.github.com/RedstoneChips/circuitdocs).__
 
@@ -20,11 +23,15 @@ Installation
 
 Changelog
 ---------
+#### SensorLibrary 0.32 (Jan 9th, 2012)
+- __spark__: Added "fake" argument for damage-less sparks (copied from @AterIgnis version).
+- Updated for RC0.94.
+
 #### SensorLibrary 0.31 (19/12/11)
 - Some cosmetic message changes.
 - Updated to work with RC0.93.
 
-#### SensorLibrary 0.3 (4/12/11)
+#### SensorLibrary 0.3 (04/12/11)
 - New spark chip. 
 - New self-triggering vehicleid and playerid sensor chips.
 - Rangefinder direction is determined by two interface blocks instead of interface+noteblock. The extra interface block is also part of structure.

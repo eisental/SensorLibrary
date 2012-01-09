@@ -10,7 +10,7 @@ import org.tal.redstonechips.util.BitSetUtils;
  * @author Tal Eisenberg
  */
 public class spark extends Circuit {
-    boolean bin = false;
+    boolean bin = false, fake = false;
     int dataPin;
 
     @Override
@@ -19,30 +19,37 @@ public class spark extends Circuit {
             if (inIdx==0 && state) {
                 int idx = BitSetUtils.bitSetToUnsignedInt(inputBits, 1, inputs.length-1);
                 if (idx<interfaceBlocks.length)
-                    world.strikeLightning(interfaceBlocks[idx].getLocation());
+                    strike(idx);
             }
-        } else if (state) world.strikeLightning(interfaceBlocks[inIdx].getLocation());
+        } else if (state) strike(inIdx);
     }
 
+    private void strike(int idx) {
+            if (fake) world.strikeLightningEffect(interfaceBlocks[idx].getLocation());
+            else world.strikeLightning(interfaceBlocks[idx].getLocation());        
+    }
     @Override
     protected boolean init(CommandSender sender, String[] args) {
-        bin = false;
+        bin = false; fake = false;
+                
         if (args.length>0) {
+            if (args[args.length-1].equalsIgnoreCase("fake"))
+                fake = true;
+            
             if (args[0].equalsIgnoreCase("bin")) {
                 bin = true;
-            } else {
-                error(sender, "Bad argument: " + args[0]);
-                return false;
-            }
+            } 
         }
+        
         if (interfaceBlocks.length==0) {
             error(sender, "Expecting at least 1 interface block.");
             return false;
         }
 
         if (bin) {
-            if (Math.pow(2,inputs.length-1)<interfaceBlocks.length) {
-                int expectedInputs = (int)Math.ceil(Math.log(interfaceBlocks.length)/Math.log(2))+1;
+            int expectedInputs = (int)Math.ceil(Math.log(interfaceBlocks.length)/Math.log(2))+1;
+            
+            if (inputs.length<expectedInputs) {                
                 error(sender, "Expecting at least " + expectedInputs + " inputs for " + interfaceBlocks.length + " interface block(s)");
                 return false;
             }

@@ -94,7 +94,7 @@ public class rangefinder extends Circuit {
             createCuboid(Locations.getFace(in, face));
 
             maxOutput = (int)Math.pow(2, outputs.length)-1;
-            if (range > maxOutput) scaleToFit = true;
+            if (range >= maxOutput) scaleToFit = true;
             List<Location> locs = new ArrayList<Location>();
             locs.addAll(Arrays.asList(structure));
             locs.add(Locations.getFace(in, direction));
@@ -108,7 +108,7 @@ public class rangefinder extends Circuit {
     }
 
     private void findOriginVector() {
-        origin = findFaceCenter(Locations.getFace(interfaceBlocks[0].getLocation(), direction), direction);
+        origin = findFaceCenter(interfaceBlocks[0].getLocation(), direction);
     }
 
     private Location findFaceCenter(Location l, BlockFace face) {
@@ -169,19 +169,23 @@ public class rangefinder extends Circuit {
 
         double dist = findDistance(objectsInRange);
 
-        int out = (int)dist;
+        int out;
 
         if (scaleToFit)
             out = (int)Math.round((dist/range)*maxOutput);
-        if (out == 0 && dist > 0)
-            out = 1;
-        else if(dist > range)
-            out = 0;
-
-        if (dist<=range && hasDebuggers()) debug("Found object at " + debugFormat.format(dist) + " meters.");
-        else debug("No object found in range.");
-
-        this.sendInt(0, outputs.length, out);
+        else {
+            out = (int)dist;
+            if (out == 0 && dist > 0)
+                out = 1;
+            else if (dist > range)
+                out = 0;            
+        }
+        
+        if (dist<=range) {
+            if (hasListeners()) debug("Found object at " + debugFormat.format(dist) + " meters.");                        
+        } else debug("No object found in range.");
+        
+        this.sendInt(0, outputs.length, out);        
     }
 
     private void createCuboid(Location startBlock) {
@@ -240,10 +244,8 @@ public class rangefinder extends Circuit {
         }
     }
 
-    private void cuboidAddDirection(List<Location> cuboid, Location l, BlockFace direction, int i, int max)
-    {
-        if(i < max)
-        {
+    private void cuboidAddDirection(List<Location> cuboid, Location l, BlockFace direction, int i, int max) {
+        if (i < max) {
             l = Locations.getFace(l, direction);
             cuboid.add(l);
             cuboidAddDirection(cuboid, l, direction, ++i, max);

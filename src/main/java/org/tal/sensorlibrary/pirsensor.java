@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.tal.redstonechips.circuit.Circuit;
 import org.tal.redstonechips.util.Locations;
 
@@ -17,7 +18,7 @@ public class pirsensor extends Circuit {
     private Location center;
     private int radius = 10;
     private boolean checkCube = false;
-    private ArrayList<Class> checkedEntities = new ArrayList<Class>();
+    private Class[] checkedEntities = new Class[0];
     private static String classPath = "org.bukkit.entity.";
 
     @Override
@@ -25,27 +26,27 @@ public class pirsensor extends Circuit {
         if (state) {
             // clock pin triggered
             boolean alarm = false;            
-            List<Entity> entities = world.getEntities();
-            for (Entity e : entities) {
-                if (checkForEntity(e)) {
-                    Location l = e.getLocation();
 
-                    if (checkCube) {
+            for (Object o : world.getEntitiesByClass(checkedEntities)) {
+                Entity e = (Entity)o;
 
-                        double absX = Math.abs(l.getX() - center.getX());
-                        double absY = Math.abs(l.getY() - center.getY());
-                        double absZ = Math.abs(l.getZ() - center.getZ());
+                Location l = e.getLocation();
 
-                        if (absX <= radius && absY <= radius && absZ <= radius) {
-                            alarm = true;
-                        }
-                    } else if (Locations.isInRadius(center, l, radius)) {
+                if (checkCube) {
+
+                    double absX = Math.abs(l.getX() - center.getX());
+                    double absY = Math.abs(l.getY() - center.getY());
+                    double absZ = Math.abs(l.getZ() - center.getZ());
+
+                    if (absX <= radius && absY <= radius && absZ <= radius) {
                         alarm = true;
                     }
+                } else if (Locations.isInRadius(center, l, radius)) {
+                    alarm = true;
+                }
 
-                    if (hasDebuggers() && alarm) {
-                        debug("PIR sensor triggered by " + e.getClass().getSimpleName());
-                    }
+                if (hasListeners() && alarm) {
+                    debug("PIR sensor triggered by " + e.getClass().getSimpleName());
                 }
             }
             sendOutput(0, alarm);
@@ -69,28 +70,28 @@ public class pirsensor extends Circuit {
             return false;
         }
 
+        List<Class> entityClasses = new ArrayList<Class>();
+        
         if (args.length > 0) {
             for (String arg : args) {
-                if (!processArgs(arg)) {
+                if (!processArgs(arg, entityClasses)) {
                     error(sender, "Bad sign argument: " + arg);
                     return false;
                 }
             }
         }
 
-        if (checkedEntities.isEmpty()) {
-            try { 
-                checkedEntities.add(Class.forName(classPath + "LivingEntity", false, this.getClass().getClassLoader()));
-            } catch (ClassNotFoundException e) {
-                //Only here because Eclipse generates an error if Class.forName isn't surrounded by try/catch			
-            }
+        if (entityClasses.isEmpty()) {
+            entityClasses.add(LivingEntity.class);
         }
+        
+        checkedEntities = entityClasses.toArray(checkedEntities);
         center = interfaceBlocks[0].getLocation();
 
         return true;
     }
 
-    private boolean processArgs(String arg) {
+    private boolean processArgs(String arg, List<Class> entityClasses) {
 
         //Case: argument is "cube"
         if (arg.equals("cube")) {
@@ -107,21 +108,12 @@ public class pirsensor extends Circuit {
 
         //Case: argument is an entity type
         try {
-            checkedEntities.add(Class.forName(classPath + arg, false, this.getClass().getClassLoader()));
+            entityClasses.add((Class<? extends Entity>)Class.forName(classPath + arg, false, this.getClass().getClassLoader()));
             return true;
         } catch (ClassNotFoundException e) {;
         }
 
         //No cases match, print bad argument error
-        return false;
-    }
-
-    private boolean checkForEntity(Entity e) {
-        for (Class cls : checkedEntities) {
-            if (e != null && cls.isAssignableFrom(e.getClass())) {
-                return true;
-            }
-        }
         return false;
     }
 }

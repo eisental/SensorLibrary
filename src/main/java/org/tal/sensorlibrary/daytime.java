@@ -1,7 +1,6 @@
 package org.tal.sensorlibrary;
 
 import java.util.Calendar;
-
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.tal.redstonechips.circuit.Circuit;
@@ -34,6 +33,8 @@ public class daytime extends Circuit {
     private boolean earthtime = false;
     private int maxval;
 
+    private int hoursOffset = 0;
+    
     private TimeField timeField;
     private World w;
 
@@ -53,11 +54,11 @@ public class daytime extends Circuit {
                 else if (timeField==TimeField.MINUTEOFDAY)
                     time = now.get(Calendar.MINUTE) + now.get(Calendar.HOUR_OF_DAY)*60;
                 else if (timeField==TimeField.HOUR)
-                    time = now.get(Calendar.HOUR_OF_DAY);
+                    time = now.get(Calendar.HOUR_OF_DAY) + hoursOffset;
                 else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
-                    time = now.get(Calendar.HOUR_OF_DAY) % 10;
+                    time = (now.get(Calendar.HOUR_OF_DAY) + hoursOffset) % 10;
                 } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
-                    time = now.get(Calendar.HOUR_OF_DAY) / 10;
+                    time = (now.get(Calendar.HOUR_OF_DAY) + hoursOffset) / 10;
                 } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
                     time = now.get(Calendar.MINUTE) % 10;
                 } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit
@@ -75,11 +76,11 @@ public class daytime extends Circuit {
                 else if (timeField == TimeField.MINUTE)
                     time = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
                 else if (timeField == TimeField.HOUR)
-                    time = (int)(w.getTime()/ticksPerHour);
+                    time = (int)(w.getTime()/ticksPerHour) + hoursOffset;
                 else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
-                    time = ((int)(w.getTime()/ticksPerHour)) % 10;
+                    time = ((int)(w.getTime()/ticksPerHour) + hoursOffset) % 10;
                 } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
-                    time = ((int)(w.getTime()/ticksPerHour)) / 10;
+                    time = ((int)(w.getTime()/ticksPerHour) + hoursOffset) / 10;
                 } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
                     time = ((int)Math.round((w.getTime()%1000)/ticksPerMinute)) % 10;
                 } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit
@@ -89,7 +90,7 @@ public class daytime extends Circuit {
 
             time = Math.min(time, timeField.maxTime(earthtime));
             
-            if (hasDebuggers()) debug("Time is " + time);
+            if (hasListeners()) debug("Time is " + time);
 
             int output;
             int maxTime = timeField.maxTime(earthtime);
@@ -113,8 +114,28 @@ public class daytime extends Circuit {
         }
 
         if (args.length>0) {
-            if (args[0].equalsIgnoreCase("earthtime")) earthtime = true;
-            else if (args[0].equalsIgnoreCase("gametime")) earthtime = false;
+            String errorMsg = "Expecting <earthtime|gametime>[:<hour-offset>]";
+            int colonIdx = args[0].indexOf(":");
+            String timetype;
+            if (colonIdx==-1) {
+                timetype = args[0];
+                hoursOffset = 0;
+            } else {
+                timetype = args[0].substring(0, colonIdx);
+                try {
+                    hoursOffset = Integer.parseInt(args[0].substring(colonIdx+1));
+                } catch (NumberFormatException e) {
+                    error(sender, errorMsg);
+                }
+            }
+            
+            if (timetype.equalsIgnoreCase("earthtime")) earthtime = true;
+            else if (timetype.equalsIgnoreCase("gametime")) earthtime = false;
+            else {
+                error(sender, errorMsg);
+                return false;
+            }
+            
         }
 
         if (args.length>1) {

@@ -3,9 +3,9 @@ package org.tal.sensorlibrary;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import net.eisental.common.parsing.ParsingUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -93,22 +93,27 @@ public class slotinput extends Circuit {
             Location loc = event.getClickedBlock().getLocation();
 
             for (int i=0; i<interfaceBlocks.length; i++) {
-                if (interfaceBlocks[i].equals(loc)) {
+                if (interfaceBlocks[i].getLocation().equals(loc)) {
                     int newDigit;
-                    if (event.getAction()==Action.LEFT_CLICK_BLOCK)
+                    if (event.getAction()==Action.RIGHT_CLICK_BLOCK)
                         newDigit = event.getPlayer().getInventory().getHeldItemSlot()+1;
                     else 
                         newDigit = 0;
 
                     int result = replaceDigitOfInterfaceBlock(i, newDigit);
-                    info(event.getPlayer(), c.getChipString() + ": Setting number " + interfaceSetIndex(i) + " to " + ChatColor.LIGHT_PURPLE + result + redstoneChips.getPrefs().getInfoColor() + ".");
+                    String sres = ChatColor.LIGHT_PURPLE.toString() + 
+                                result + redstoneChips.getPrefs().getInfoColor() + ".";
+                    if (numberOfSets==1) 
+                        info(event.getPlayer(), c.getChipString() + ": Setting value to " + sres);
+                    else
+                        info(event.getPlayer(), c.getChipString() + ": Setting " + 
+                                ParsingUtils.indexToOrdinal(interfaceSetIndex(i)) + " set to " + sres);
 
                     if (interfaceSetIndex(i)>=inputs.length || inputBits.get(interfaceSetIndex(i))) {
                         sendInt(outputStartIndex(i), outputs.length/numberOfSets, result);
                     }
 
-                    if (event.getAction()==Action.RIGHT_CLICK_BLOCK)
-                        event.setCancelled(true);
+                    event.setCancelled(true);
 
                     break;
                 }

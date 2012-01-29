@@ -172,7 +172,9 @@ public class rangefinder extends Circuit {
         int out;
 
         if (scaleToFit)
-            out = (int)Math.round((dist/range)*maxOutput);
+            if (dist>0)
+                out = (int)Math.round((dist/range)*maxOutput);
+            else out = 0;
         else {
             out = (int)dist;
             if (out == 0 && dist > 0)
@@ -180,8 +182,8 @@ public class rangefinder extends Circuit {
             else if (dist > range)
                 out = 0;            
         }
-        
-        if (dist<=range) {
+
+        if (dist<=range && dist>0) {
             if (hasListeners()) debug("Found object at " + debugFormat.format(dist) + " meters.");                        
         } else debug("No object found in range.");
         
@@ -281,6 +283,6 @@ public class rangefinder extends Circuit {
 
         }
 
-        return minDist;
+        return minDist>range?0:minDist;
     }
 }

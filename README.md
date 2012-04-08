@@ -23,6 +23,15 @@ Installation
 
 Changelog
 ---------
+#### SensorLibrary 0.33
+- Updated for RC0.95
+- __daytime__: Added hour offset argument.
+- __slotinput__: The chip works now. 
+- __rangefinder__: Fixed scaling bug.
+- __pirsensor__: Speed improvements
+- __rangefinder__: An output of 0 now means only "no target". When a target is detected the output value starts from 1.
+- __pirsensor__: Added option to track entities in a cube in addition to sphere. Tracked entity types can be specified in sign arguments. by Vecht.
+
 #### SensorLibrary 0.32 (Jan 9th, 2012)
 - __spark__: Added "fake" argument for damage-less sparks (copied from @AterIgnis version).
 - Updated for RC0.94.

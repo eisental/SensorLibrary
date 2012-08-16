@@ -53,12 +53,17 @@ public class daytime extends Circuit {
                     time = now.get(Calendar.MINUTE);
                 else if (timeField==TimeField.MINUTEOFDAY)
                     time = now.get(Calendar.MINUTE) + now.get(Calendar.HOUR_OF_DAY)*60;
-                else if (timeField==TimeField.HOUR)
+                else if (timeField==TimeField.HOUR) {
                     time = now.get(Calendar.HOUR_OF_DAY) + hoursOffset;
-                else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
-                    time = (now.get(Calendar.HOUR_OF_DAY) + hoursOffset) % 10;
+                    if (time>=24) time = time - 24;
+                } else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
+                    time = (now.get(Calendar.HOUR_OF_DAY) + hoursOffset);
+                    if (time>=24) time = time - 24;
+                    time = time % 10;
                 } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
-                    time = (now.get(Calendar.HOUR_OF_DAY) + hoursOffset) / 10;
+                    time = (now.get(Calendar.HOUR_OF_DAY) + hoursOffset);
+                    if (time>=24) time = time - 24;
+                    time = time / 10;
                 } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
                     time = now.get(Calendar.MINUTE) % 10;
                 } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit
@@ -75,12 +80,20 @@ public class daytime extends Circuit {
                     time = (int)Math.round(w.getTime()/ticksPerMinute);
                 else if (timeField == TimeField.MINUTE)
                     time = (int)Math.round((w.getTime()%1000)/ticksPerMinute);
-                else if (timeField == TimeField.HOUR)
+                else if (timeField == TimeField.HOUR) {
                     time = (int)(w.getTime()/ticksPerHour) + hoursOffset;
-                else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
-                    time = ((int)(w.getTime()/ticksPerHour) + hoursOffset) % 10;
+                    if (time>=24) time = time - 24;
+                    
+                } else if (timeField==TimeField.HOUR1) { // hour of day, ones digit
+                    time = ((int)(w.getTime()/ticksPerHour) + hoursOffset);
+                    if (time>=24) time = time - 24;
+                    time = time % 10;
+                    
                 } else if (timeField==TimeField.HOUR10) { // hour of day, tens digit
-                    time = ((int)(w.getTime()/ticksPerHour) + hoursOffset) / 10;
+                    time = ((int)(w.getTime()/ticksPerHour) + hoursOffset);
+                    if (time>=24) time = time - 24;
+                    time = time / 10;
+                    
                 } else if (timeField==TimeField.MINUTE1) { // minute of hour, ones digit
                     time = ((int)Math.round((w.getTime()%1000)/ticksPerMinute)) % 10;
                 } else if (timeField==TimeField.MINUTE10) { // minute of hour, tens digit

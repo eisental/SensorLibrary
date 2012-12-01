@@ -23,6 +23,9 @@ Installation
 
 Changelog
 ---------
+#### SensorLibrary 0.34
+- __daytime__: Fixed daytime offset bug.
+
 #### SensorLibrary 0.33
 - Updated for RC0.95
 - __daytime__: Added hour offset argument.

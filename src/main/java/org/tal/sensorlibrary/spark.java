@@ -2,8 +2,8 @@
 package org.tal.sensorlibrary;
 
 import org.bukkit.command.CommandSender;
-import org.tal.redstonechips.circuit.Circuit;
 import org.tal.redstonechips.bitset.BitSetUtils;
+import org.tal.redstonechips.circuit.Circuit;
 
 /**
  *

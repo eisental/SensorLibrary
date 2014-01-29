@@ -6,7 +6,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.circuit.Circuit;
 import org.redstonechips.chip.io.InterfaceBlock;
 
 /**

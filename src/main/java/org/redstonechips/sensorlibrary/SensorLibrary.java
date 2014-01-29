@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.redstonechips.chip.CircuitLibrary;
+import org.redstonechips.circuit.CircuitLibrary;
 
 /**
  *

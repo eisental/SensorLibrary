@@ -3,7 +3,7 @@ package org.redstonechips.sensorlibrary;
 
 import org.bukkit.Location;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.circuit.Circuit;
 
 /**
  *

@@ -13,7 +13,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.material.MaterialData;
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.RCPrefs;
+import org.redstonechips.circuit.Circuit;
 import org.redstonechips.util.Locations;
 import org.redstonechips.wireless.Transmitter;
 
@@ -311,7 +312,7 @@ public class rangefinder extends Circuit {
     private static final BlockFace[] faces = new BlockFace[] { BlockFace.NORTH, BlockFace.WEST, BlockFace.EAST, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN };
 
     private BlockFace findDirectionBlock(Location l) throws IllegalArgumentException {
-        MaterialData interfaceBlockType = rc.prefs().getInterfaceBlockType();
+        MaterialData interfaceBlockType = RCPrefs.getInterfaceBlockType();
         Block block = l.getBlock();
         BlockFace ret = null;
 

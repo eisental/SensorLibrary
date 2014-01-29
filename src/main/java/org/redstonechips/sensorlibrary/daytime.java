@@ -2,7 +2,7 @@ package org.redstonechips.sensorlibrary;
 
 import java.util.Calendar;
 import org.bukkit.World;
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.circuit.Circuit;
 
 /**
  *

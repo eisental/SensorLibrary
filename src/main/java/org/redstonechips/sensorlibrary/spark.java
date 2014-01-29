@@ -1,7 +1,7 @@
 
 package org.redstonechips.sensorlibrary;
 
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.circuit.Circuit;
 import org.redstonechips.util.BooleanArrays;
 
 /**

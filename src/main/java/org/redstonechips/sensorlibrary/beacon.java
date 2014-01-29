@@ -6,7 +6,7 @@ import java.util.Map;
 import org.bukkit.Chunk;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.circuit.Circuit;
 import org.redstonechips.wireless.Transmitter;
 import org.redstonechips.util.ChunkLocation;
 

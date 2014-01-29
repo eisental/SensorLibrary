@@ -5,7 +5,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.circuit.Circuit;
 import org.redstonechips.util.Locations;
 
 /**

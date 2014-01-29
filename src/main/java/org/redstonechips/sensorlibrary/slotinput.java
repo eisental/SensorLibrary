@@ -8,8 +8,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.redstonechips.RCPrefs;
 import org.redstonechips.chip.Chip;
-import org.redstonechips.chip.Circuit;
+import org.redstonechips.circuit.Circuit;
 
 public class slotinput extends Circuit {
 
@@ -85,8 +86,8 @@ public class slotinput extends Circuit {
                     newDigit = 0;
 
                 int result = replaceDigitOfInterfaceBlock(i, newDigit);
-                String sres = ChatColor.LIGHT_PURPLE.toString() + 
-                            result + rc.prefs().getInfoColor() + ".";
+                String sres = ChatColor.LIGHT_PURPLE.toString() + result + RCPrefs.getInfoColor() + ".";
+                            
                 if (numberOfSets==1) 
                     infoForSender(event.getPlayer(), chip + ": Setting value to " + sres);
                 else

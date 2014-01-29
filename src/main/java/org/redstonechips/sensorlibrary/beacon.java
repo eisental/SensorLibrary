@@ -1,15 +1,14 @@
 
-package org.tal.sensorlibrary;
+package org.redstonechips.sensorlibrary;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Chunk;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.tal.redstonechips.circuit.Circuit;
-import org.tal.redstonechips.wireless.Transmitter;
-import org.tal.redstonechips.util.ChunkLocation;
+import org.redstonechips.chip.Circuit;
+import org.redstonechips.wireless.Transmitter;
+import org.redstonechips.util.ChunkLocation;
 
 /**
  *
@@ -25,39 +24,28 @@ public class beacon extends Circuit {
     private Transmitter transmitter;
     
     @Override
-    public void inputChange(int inIdx, boolean state) { 
+    public void input(boolean state, int inIdx) { 
         if (inIdx==0) keepalive = state;
     }
 
     @Override
-    protected boolean init(CommandSender sender, String[] args) {
-        if (inputs.length>1 || interfaceBlocks.length!=1) {
-            error(sender, "Expecting 1 interface block and no more than 1 input pin.");
-            return false;
-        }
+    public Circuit init(String[] args) {
+        if (inputlen>1 || chip.interfaceBlocks.length!=1)
+            return error("Expecting 1 interface block and no more than 1 input pin.");
 
-        if (args.length==0) {
-            error(sender, "Broadcast channel name argument is missing.");
-            return false;
-        }
-
-        if (args.length>1) {
+        if (args.length==0) return error("Broadcast channel name argument is missing.");
+        else if (args.length>1) {
             try {
                 radius = Integer.decode(args[1]);
-
-                if (radius<0) {
-                    error(sender, "Bad radius argument: " + args[1]);
-                    return false;
-                }
+                if (radius<0) return error("Bad radius argument: " + args[1]);
             } catch (NumberFormatException ne) {
-                error(sender, "Bad radius argument: " + args[1]);
-                return false;
+                return error("Bad radius argument: " + args[1]);
             }
         }
 
-        centerChunk = ChunkLocation.fromLocation(interfaceBlocks[0].getLocation());
+        centerChunk = ChunkLocation.fromLocation(chip.interfaceBlocks[0].getLocation());
         transmitter = new Transmitter();
-        transmitter.init(sender, args[0], 1, this);
+        transmitter.init(activator, args[0], 1, this);
 
         for (int x=centerChunk.getX()-radius; x<=centerChunk.getX()+radius; x++) {
             for (int z=centerChunk.getZ()-radius; z<=centerChunk.getZ()+radius; z++) {
@@ -72,11 +60,11 @@ public class beacon extends Circuit {
 
         SensorLibrary.registerChunkbeaconCircuit(this);
 
-        return true;
+        return this;
     }
 
     @Override
-    public void circuitShutdown() {
+    public void shutdown() {
         SensorLibrary.deregisterChunkbeaconCircuit(this);
     }
 
@@ -92,7 +80,7 @@ public class beacon extends Circuit {
         if (isChunkInRange(ChunkLocation.fromChunk(event.getChunk()))) {
             Chunk chunk = event.getChunk();
             if (keepalive) {
-                if (hasDebuggers()) debug("Chunk (" + chunk.getX() + ", " + chunk.getZ() + ") in " + world .getName()+ " is kept alive.");
+                if (chip.hasListeners()) debug("Chunk (" + chunk.getX() + ", " + chunk.getZ() + ") in " + chip.world.getName()+ " is kept alive.");
                 event.setCancelled(true);
             } else {
                 loadCount--;
@@ -104,7 +92,7 @@ public class beacon extends Circuit {
     private void sendBit() {
         boolean loaded = loadCount>0;
         
-        if (hasDebuggers()) {
+        if (chip.hasListeners()) {
             if (loaded) debug("Region loaded.");
             else debug("Region unloaded.");
         }
@@ -113,7 +101,7 @@ public class beacon extends Circuit {
     }
 
     private boolean isChunkInRange(ChunkLocation chunk) {
-        if (chunk.getWorld().getUID()!=world.getUID()) return false;
+        if (chunk.getWorld().getUID()!=chip.world.getUID()) return false;
 
         int dx = centerChunk.getX() - chunk.getX();
         int dz = centerChunk.getZ() - chunk.getZ();
@@ -127,7 +115,7 @@ public class beacon extends Circuit {
                 if (isChunkInRange(loc)) {
                     loc.loadChunk();
                     
-                    redstoneChips.getCircuitManager().updateOnChunkLoad(loc);
+                    rc.chipManager().maybeChipChunkLoaded(loc);
                 }
             }
         }
@@ -146,14 +134,14 @@ public class beacon extends Circuit {
             keepalive = Boolean.parseBoolean(state.get("keepalive"));
             if (keepalive) {
                 loadChunksInRadius();
-                inputBits.set(0);
+                inputs[0] = true;
             }
 
         }
     }
 
     @Override
-    protected boolean isStateless() {
+    public boolean isStateless() {
         return false;
     }
 }

@@ -1,4 +1,4 @@
-package org.tal.sensorlibrary;
+package org.redstonechips.sensorlibrary;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -6,15 +6,16 @@ import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.material.MaterialData;
-import org.tal.redstonechips.circuit.Circuit;
-import org.tal.redstonechips.util.Locations;
-import org.tal.redstonechips.wireless.Transmitter;
+import org.redstonechips.chip.Circuit;
+import org.redstonechips.util.Locations;
+import org.redstonechips.wireless.Transmitter;
 
 /**
  *
@@ -32,12 +33,12 @@ public class rangefinder extends Circuit {
     private Transmitter transmitter;
     
     @Override
-    public void inputChange(int inIdx, boolean state) {
+    public void input(boolean state, int inIdx) {
         if (state) trigger();
     }
 
     @Override
-    protected boolean init(CommandSender sender, String[] args) {
+    public Circuit init(String[] args) {
         int cuboidSize[] = new int[] {3,3};
                 
         // -- parse arguments --
@@ -50,7 +51,7 @@ public class rangefinder extends Circuit {
             // -- #channel --                        
             for (String arg : arglist) {
                 if (arg.charAt(0)=='#') {
-                    initTransmitter(sender, arg);
+                    initTransmitter(activator, arg);
                     arglist.remove(arg);                    
                     break;
                 }
@@ -61,8 +62,7 @@ public class rangefinder extends Circuit {
                 try {
                     range = Integer.decode(arglist.get(0));
                 } catch (NumberFormatException ne) {
-                    error(sender, "Bad range argument: " + arglist.get(0));
-                    return false;
+                    return error("Bad range argument: " + arglist.get(0));
                 }
 
                 // -- size --
@@ -70,22 +70,22 @@ public class rangefinder extends Circuit {
                     try {
                         cuboidSize = parseSize(arglist.get(1));
                     } catch (NumberFormatException ne) {
-                        error(sender, "Bad size argument: " + arglist.get(1));
+                        return error("Bad size argument: " + arglist.get(1));
                     }
                 }
             }
         }
 
         // -- validate I/O --
-        if (inputs.length!=1) { error(sender, "Expecting 1 clock input pin."); return false; }
-        if (interfaceBlocks.length!=1) { error(sender, "Expecting 1 interface block."); return false; }
+        if (inputlen!=1) return error("Expecting 1 clock input pin.");
+        if (chip.interfaceBlocks.length!=1) return error("Expecting 1 interface block."); 
         
         if (transmitter==null) {
-            if (outputs.length<2) { error(sender, "Expecting at least 2 output pins."); return false; }
-            dataOutputCount = outputs.length-1;
+            if (outputlen<2) return error("Expecting at least 2 output pins.");
+            dataOutputCount = outputlen-1;
         } 
         
-        if (dataOutputCount<=0) { error(sender, "Found 0 data outputs pins or channel bits."); return false; }
+        if (dataOutputCount<=0) return error("Found 0 data outputs pins or channel bits.");
         
         // -- auto down-scale when range exceeds outputs --
         maxOutput = (int)Math.pow(2, dataOutputCount)-1;
@@ -93,7 +93,7 @@ public class rangefinder extends Circuit {
         
         // -- calculate detection cuboid --
         try {
-            Location ib = interfaceBlocks[0].getLocation();
+            Location ib = chip.interfaceBlocks[0].getLocation();
             BlockFace face = findDirectionBlock(ib);
             direction = face;
             origin = findOriginVector();
@@ -102,18 +102,17 @@ public class rangefinder extends Circuit {
             //for (Location l : cuboid) l.getBlock().setType(Material.GLASS);
                         
             // add 2nd interface block to the chip structure
-            List<Location> locs = new ArrayList<Location>(Arrays.asList(structure));
+            List<Location> locs = new ArrayList<Location>(Arrays.asList(chip.structure));
             locs.add(Locations.getFace(ib, direction));
-            structure = locs.toArray(new Location[0]);
+            chip.structure = locs.toArray(new Location[0]);
             
-        } catch (IllegalArgumentException ie) {
-            error(sender, ie.getMessage());
-            this.circuitShutdown();
-            return false;
+        } catch (IllegalArgumentException ie) {            
+            this.shutdown();
+            return error(ie.getMessage());
         }
         
-        info(sender, "range: " + range + " output-size: " + dataOutputCount + " bits. scale " + (scaleToFit?"on.":"off."));        
-        return true;        
+        info("range: " + range + " output-size: " + dataOutputCount + " bits. scale " + (scaleToFit?"on.":"off."));        
+        return this;        
     }
 
     private int[] parseSize(String str) {
@@ -134,7 +133,7 @@ public class rangefinder extends Circuit {
             try {
                 length = Integer.parseInt(lenString);
             } catch (NumberFormatException e) {
-                error(sender, "Bad channel string: " + channelString);
+                error("Bad channel string: " + channelString);
                 return;
             }
         } else {
@@ -148,7 +147,7 @@ public class rangefinder extends Circuit {
     }
 
     @Override
-    public void circuitShutdown() {
+    public void shutdown() {
         if (transmitter!=null) transmitter.shutdown();
     }
     
@@ -169,7 +168,7 @@ public class rangefinder extends Circuit {
         for (int x = corner1.getBlockX(); x<=corner2.getBlockX(); x++) 
             for (int y = corner1.getBlockY(); y<=corner2.getBlockY(); y++) 
                 for (int z = corner1.getBlockZ(); z<=corner2.getBlockZ(); z++) {
-                    Material type = world.getBlockAt(x, y, z).getType();
+                    Material type = chip.world.getBlockAt(x, y, z).getType();
 
                     if (type!=Material.AIR && type!=Material.WATER && type!=Material.STATIONARY_WATER) {
                         objectsInRange.add(findFaceCenter(x,y,z, oppositeFace));
@@ -177,7 +176,7 @@ public class rangefinder extends Circuit {
                     
                 }
 
-        for (Entity e : world.getEntities()) {
+        for (Entity e : chip.world.getEntities()) {
             Location l = e.getLocation(); 
             //System.out.println(corner1 + ", " + corner2 + ": " + l);
             if (l.getX()>=corner1.getX() && l.getX()<=corner2.getX() &&
@@ -223,10 +222,10 @@ public class rangefinder extends Circuit {
     }
 
     private void foundNothing() {
-        if (hasListeners()) debug("No object found in range.");
+        if (chip.hasListeners()) debug("No object found in range.");
         if (transmitter==null) {
-            this.sendInt(1, dataOutputCount, 0);
-            this.sendOutput(0, false);
+            this.writeInt(0, 1, dataOutputCount);
+            this.write(false, 0);
         }
     }
 
@@ -235,13 +234,13 @@ public class rangefinder extends Circuit {
         if (scaleToFit) out = (dist<=0 ? 0 : (int)Math.round((dist / range) * maxOutput));                    
         else out = (int)Math.floor(dist);
 
-        if (hasListeners()) debug("Found object at " + debugFormat.format(dist) + " meters.");
+        if (chip.hasListeners()) debug("Found object at " + debugFormat.format(dist) + " meters.");
         
         if (transmitter==null) {
-            this.sendInt(1, dataOutputCount, out);
-            this.sendOutput(0, true);        
+            this.writeInt(out, 1, dataOutputCount);
+            this.write(true, 0);        
         } else {
-            transmitter.send(out, 0, dataOutputCount);
+            transmitter.transmit(out, 0, dataOutputCount);
         }
     }
     
@@ -286,12 +285,14 @@ public class rangefinder extends Circuit {
     }
 
     private Location findOriginVector() {
-        Location loc = interfaceBlocks[0].getLocation();
+        Location loc = chip.interfaceBlocks[0].getLocation();
         loc = Locations.getFace(loc, direction);
         return findFaceCenter(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), direction);
     }
 
     private Location findFaceCenter(int x, int y, int z, BlockFace face) {
+        World world = chip.world;
+        
         if (face==BlockFace.DOWN) {
             return new Location(world, x+0.5, y, z+0.5);
         } else if (face==BlockFace.UP) {
@@ -310,7 +311,7 @@ public class rangefinder extends Circuit {
     private static final BlockFace[] faces = new BlockFace[] { BlockFace.NORTH, BlockFace.WEST, BlockFace.EAST, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN };
 
     private BlockFace findDirectionBlock(Location l) throws IllegalArgumentException {
-        MaterialData interfaceBlockType = redstoneChips.getPrefs().getInterfaceBlockType();
+        MaterialData interfaceBlockType = rc.prefs().getInterfaceBlockType();
         Block block = l.getBlock();
         BlockFace ret = null;
 

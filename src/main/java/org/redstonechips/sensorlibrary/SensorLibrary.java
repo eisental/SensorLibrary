@@ -1,5 +1,5 @@
 
-package org.tal.sensorlibrary;
+package org.redstonechips.sensorlibrary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +11,17 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.tal.redstonechips.circuit.CircuitLibrary;
+import org.redstonechips.chip.CircuitLibrary;
 
 /**
  *
  * @author Tal Eisenberg
  */
 public class SensorLibrary extends CircuitLibrary implements Listener {
-    private static List<slotinput> slotinputCircuits = new ArrayList<slotinput>();
-    private static List<beacon> chunkbeaconCircuits = new ArrayList<beacon>();
-    private static List<vehicleid> vehicleidCircuits = new ArrayList<vehicleid>();
-    private static List<playerid> playeridCircuits = new ArrayList<playerid>();
+    private static final List<slotinput> slotinputCircuits = new ArrayList<slotinput>();
+    private static final List<beacon> chunkbeaconCircuits = new ArrayList<beacon>();
+    private static final List<vehicleid> vehicleidCircuits = new ArrayList<vehicleid>();
+    private static final List<playerid> playeridCircuits = new ArrayList<playerid>();
 
     @Override
     public Class[] getCircuitClasses() {

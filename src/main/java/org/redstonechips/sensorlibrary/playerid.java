@@ -1,29 +1,28 @@
 
-package org.tal.sensorlibrary;
+package org.redstonechips.sensorlibrary;
 
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.tal.redstonechips.circuit.Circuit;
+import org.redstonechips.chip.Circuit;
 
 /**
  *
  * @author Tal Eisenberg
  */
 public class playerid extends Circuit {
-    private int resetPin = 1;
-    private int disablePin = 0;
+    private final int resetPin = 1;
+    private final int disablePin = 0;
     private boolean pinDisabled = false;
     private int lastInterface = -1;
 
     @Override
-    public void inputChange(int inIdx, boolean state) {
+    public void input(boolean state, int inIdx) {
         if (inIdx==resetPin && state) {
-            for (int i=0; i<outputs.length; i++) sendOutput(i, false);
+            for (int i=0; i<outputlen; i++) write(false, i);
         } else if (inIdx==disablePin) {
             pinDisabled = state;
             if (pinDisabled) {
-                for (int i=0; i<outputs.length; i++) sendOutput(i, false);
+                for (int i=0; i<outputlen; i++) write(false, i);
                 SensorLibrary.deregisterPlayeridCircuit(this);
             } else {
                 SensorLibrary.registerPlayeridCircuit(this);
@@ -32,14 +31,13 @@ public class playerid extends Circuit {
     }
 
     @Override
-    protected boolean init(CommandSender sender, String[] args) {
-        if (outputs.length==0 || interfaceBlocks.length==0) {
-            error(sender, "Expecting at least 2 output pins and at least 1 interface block.");
-            return false;
+    public Circuit init(String[] args) {
+        if (outputlen==0 || chip.interfaceBlocks.length==0) {
+            return error("Expecting at least 2 output pins and at least 1 interface block.");
+        } else {
+            SensorLibrary.registerPlayeridCircuit(this);
+            return this;
         }
-
-        SensorLibrary.registerPlayeridCircuit(this);
-        return true;
     }
 
     void onPlayerMove(PlayerMoveEvent event) {
@@ -48,19 +46,19 @@ public class playerid extends Circuit {
         Location to = event.getTo();
         boolean found = false;
 
-        for (int i=0; i<interfaceBlocks.length; i++) {
-            Location in = interfaceBlocks[i].getLocation();
+        for (int i=0; i<chip.interfaceBlocks.length; i++) {
+            Location in = chip.interfaceBlocks[i].getLocation();
             if (to.getBlockX()==in.getBlockX() && to.getBlockY()-in.getBlockY()<=1 && to.getBlockZ()==in.getBlockZ()) {
                 found = true;
                 if (i!=lastInterface) {
                     int pid = event.getPlayer().getEntityId();
-                    if (hasDebuggers()) {
+                    if (chip.hasListeners()) {
                         debug("Player " + pid + " detected at interface block " + i);
                     }
 
-                    sendInt(1, outputs.length-1, pid);
-                    sendOutput(0, true);
-                    sendOutput(0, false);
+                    writeInt(pid, 1, outputlen-1);
+                    write(true, 0);
+                    write(false, 0);
                     
                     lastInterface = i;
                     return;
@@ -74,7 +72,7 @@ public class playerid extends Circuit {
     }
 
     @Override
-    public void circuitShutdown() {
+    public void shutdown() {
         SensorLibrary.deregisterPlayeridCircuit(this);
     }
 }

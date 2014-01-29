@@ -1,13 +1,12 @@
-package org.tal.sensorlibrary;
+package org.redstonechips.sensorlibrary;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.tal.redstonechips.circuit.Circuit;
-import org.tal.redstonechips.util.Locations;
+import org.redstonechips.chip.Circuit;
+import org.redstonechips.util.Locations;
 
 /**
  *
@@ -19,15 +18,15 @@ public class pirsensor extends Circuit {
     private int radius = 10;
     private boolean checkCube = false;
     private Class[] checkedEntities = new Class[0];
-    private static String classPath = "org.bukkit.entity.";
+    private static final String classPath = "org.bukkit.entity.";
 
     @Override
-    public void inputChange(int inIdx, boolean state) {
+    public void input(boolean state, int inIdx) {
         if (state) {
             // clock pin triggered
             boolean alarm = false;            
 
-            for (Object o : world.getEntitiesByClass(checkedEntities)) {
+            for (Object o : chip.world.getEntitiesByClass(checkedEntities)) {
                 Entity e = (Entity)o;
 
                 Location l = e.getLocation();
@@ -45,40 +44,25 @@ public class pirsensor extends Circuit {
                     alarm = true;
                 }
 
-                if (hasListeners() && alarm) {
+                if (chip.hasListeners() && alarm) {
                     debug("PIR sensor triggered by " + e.getClass().getSimpleName());
                 }
             }
-            sendOutput(0, alarm);
+            write(alarm, 0);
         }
     }
 
     @Override
-    protected boolean init(CommandSender sender, String[] args) {
-        if (interfaceBlocks.length != 1) {
-            error(sender, "Expecting 1 interface block.");
-            return false;
-        }
-
-        if (inputs.length != 1) {
-            error(sender, "Expecting 1 clock input pin.");
-            return false;
-        }
-
-        if (outputs.length != 1) {
-            error(sender, "Expecting 1 alarm output.");
-            return false;
-        }
+    public Circuit init(String[] args) {
+        if (chip.interfaceBlocks.length != 1) return error("Expecting 1 interface block.");
+        if (inputlen != 1) return error("Expecting 1 clock input pin.");
+        if (outputlen != 1) return error("Expecting 1 alarm output.");
 
         List<Class> entityClasses = new ArrayList<Class>();
         
         if (args.length > 0) {
-            for (String arg : args) {
-                if (!processArgs(arg, entityClasses)) {
-                    error(sender, "Bad sign argument: " + arg);
-                    return false;
-                }
-            }
+            for (String arg : args)
+                if (!processArgs(arg, entityClasses)) return error("Bad sign argument: " + arg);            
         }
 
         if (entityClasses.isEmpty()) {
@@ -86,9 +70,9 @@ public class pirsensor extends Circuit {
         }
         
         checkedEntities = entityClasses.toArray(checkedEntities);
-        center = interfaceBlocks[0].getLocation();
+        center = chip.interfaceBlocks[0].getLocation();
 
-        return true;
+        return this;
     }
 
     private boolean processArgs(String arg, List<Class> entityClasses) {
@@ -103,15 +87,13 @@ public class pirsensor extends Circuit {
         try {
             radius = Integer.decode(arg);
             return true;
-        } catch (NumberFormatException e) {;
-        }
+        } catch (NumberFormatException e) {}
 
         //Case: argument is an entity type
         try {
             entityClasses.add((Class<? extends Entity>)Class.forName(classPath + arg, false, this.getClass().getClassLoader()));
             return true;
-        } catch (ClassNotFoundException e) {;
-        }
+        } catch (ClassNotFoundException e) {}
 
         //No cases match, print bad argument error
         return false;

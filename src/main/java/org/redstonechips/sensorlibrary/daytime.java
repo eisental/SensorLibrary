@@ -1,9 +1,8 @@
-package org.tal.sensorlibrary;
+package org.redstonechips.sensorlibrary;
 
 import java.util.Calendar;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
-import org.tal.redstonechips.circuit.Circuit;
+import org.redstonechips.chip.Circuit;
 
 /**
  *
@@ -39,7 +38,7 @@ public class daytime extends Circuit {
     private World w;
 
     @Override
-    public void inputChange(int inIdx, boolean state) {
+    public void input(boolean state, int inIdx) {
         if (state) {
             int time;
 
@@ -103,7 +102,7 @@ public class daytime extends Circuit {
 
             time = Math.min(time, timeField.maxTime(earthtime));
             
-            if (hasListeners()) debug("Time is " + time);
+            if (chip.hasListeners()) debug("Time is " + time);
 
             int output;
             int maxTime = timeField.maxTime(earthtime);
@@ -115,16 +114,13 @@ public class daytime extends Circuit {
             } else
                 output = time;
 
-            sendInt(0, outputs.length, output);
+            writeInt(output, 0, outputlen);
         }
     }
 
     @Override
-    protected boolean init(CommandSender sender, String[] args) {
-        if (inputs.length!=1) {
-            error(sender, "Expecting 1 clock input.");
-            return false;
-        }
+    public Circuit init(String[] args) {
+        if (inputlen!=1) return error("Expecting 1 clock input.");
 
         if (args.length>0) {
             String errorMsg = "Expecting <earthtime|gametime>[:<hour-offset>]";
@@ -138,48 +134,37 @@ public class daytime extends Circuit {
                 try {
                     hoursOffset = Integer.parseInt(args[0].substring(colonIdx+1));
                 } catch (NumberFormatException e) {
-                    error(sender, errorMsg);
+                    return error(errorMsg);
                 }
             }
             
             if (timetype.equalsIgnoreCase("earthtime")) earthtime = true;
             else if (timetype.equalsIgnoreCase("gametime")) earthtime = false;
-            else {
-                error(sender, errorMsg);
-                return false;
-            }
-            
+            else return error(errorMsg);            
         }
 
         if (args.length>1) {
             try {
                 timeField = TimeField.valueOf(args[1].toUpperCase());
             } catch (IllegalArgumentException ie) {
-                error(sender, "Unknown time field: " + args[1]);
-                return false;
+                return error("Unknown time field: " + args[1]);
             }
         } else {
             timeField=TimeField.TICK;
         }
 
-        if (!earthtime && (timeField==TimeField.SECOND1 || timeField==TimeField.SECOND10)) {
-            error(sender, "second1 or second10 time fields are not allowed when using gametime.");
-            return false;
-        }
+        if (!earthtime && (timeField==TimeField.SECOND1 || timeField==TimeField.SECOND10))
+            return error("second1 or second10 time fields are not allowed when using gametime.");
 
         if (args.length>2) {
-            w = redstoneChips.getServer().getWorld(args[2]);
-            if (w == null) {
-                error(sender, "Unknown world name: " + args[2]);
-                return false;
-            }
+            w = rc.getServer().getWorld(args[2]);
+            if (w == null) return error("Unknown world name: " + args[2]);
         } else {
-            w = world;
+            w = chip.world;
         }
 
-        maxval = (int)(Math.pow(2, outputs.length)-1);        
+        maxval = (int)(Math.pow(2, outputlen)-1);        
 
-        return true;
+        return this;
     }
-
 }

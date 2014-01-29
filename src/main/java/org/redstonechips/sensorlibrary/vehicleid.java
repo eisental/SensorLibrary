@@ -1,29 +1,28 @@
 
-package org.tal.sensorlibrary;
+package org.redstonechips.sensorlibrary;
 
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
-import org.tal.redstonechips.circuit.Circuit;
+import org.redstonechips.chip.Circuit;
 
 /**
  *
  * @author Tal Eisenberg
  */
 public class vehicleid extends Circuit {
-    private int resetPin = 1;
-    private int disablePin = 0;
+    private final int resetPin = 1;
+    private final int disablePin = 0;
     private boolean pinDisabled = false;
     private int lastInterface = -1;
 
     @Override
-    public void inputChange(int inIdx, boolean state) {
+    public void input(boolean state, int inIdx) {
         if (inIdx==resetPin && state) {
-            for (int i=0; i<outputs.length; i++) sendOutput(i, false);
+            for (int i=0; i<outputlen; i++) write(false, i);
         } else if (inIdx==disablePin) {
             pinDisabled = state;
             if (pinDisabled) {
-                for (int i=0; i<outputs.length; i++) sendOutput(i, false);
+                for (int i=0; i<outputlen; i++) write(false, i);
                 SensorLibrary.deregisterVehicleidCircuit(this);
             } else {
                 SensorLibrary.registerVehicleidCircuit(this);
@@ -32,14 +31,12 @@ public class vehicleid extends Circuit {
     }
 
     @Override
-    protected boolean init(CommandSender sender, String[] args) {
-        if (outputs.length==0 || interfaceBlocks.length==0) {
-            error(sender, "Expecting at least 2 output pins and at least 1 interface block.");
-            return false;
-        }
+    public Circuit init(String[] args) {
+        if (outputlen==0 || chip.interfaceBlocks.length==0)
+            return error("Expecting at least 2 output pins and at least 1 interface block.");
 
         SensorLibrary.registerVehicleidCircuit(this);
-        return true;
+        return this;
     }
 
     void onVehicleMove(VehicleMoveEvent event) {
@@ -48,19 +45,19 @@ public class vehicleid extends Circuit {
         Location to = event.getTo();
         boolean found = false;
 
-        for (int i=0; i<interfaceBlocks.length; i++) {
-            Location in = interfaceBlocks[i].getLocation();
+        for (int i=0; i<chip.interfaceBlocks.length; i++) {
+            Location in = chip.interfaceBlocks[i].getLocation();
             if (to.getBlockX()==in.getBlockX() && to.getBlockY()-in.getBlockY()<=1 && to.getBlockZ()==in.getBlockZ()) {
                 found = true;
                 if (i!=lastInterface) {
                     int vid = event.getVehicle().getEntityId();
-                    if (hasDebuggers()) {
+                    if (chip.hasListeners()) {
                         debug("Vehicle " + vid + " detected at interface block " + i);
                     }
 
-                    sendInt(1, outputs.length-1, vid);
-                    sendOutput(0, true);
-                    sendOutput(0, false);
+                    writeInt(vid, 1, outputlen-1);
+                    write(true, 0);
+                    write(false, 0);
                     
                     lastInterface = i;
                     return;
@@ -74,7 +71,7 @@ public class vehicleid extends Circuit {
     }
 
     @Override
-    public void circuitShutdown() {
+    public void shutdown() {
         SensorLibrary.deregisterVehicleidCircuit(this);
     }
 }

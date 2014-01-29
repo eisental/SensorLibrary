@@ -1,5 +1,5 @@
 name: SensorLibrary
-main: org.tal.sensorlibrary.SensorLibrary
+main: org.redstonechips.sensorlibrary.SensorLibrary
 version: 0.34
 author: eisental
 description: Sensor library for RedstoneChips integrated circuits plugin.

@@ -6,14 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.material.MaterialData;
-import org.redstonechips.RCPrefs;
 import org.redstonechips.circuit.Circuit;
 import org.redstonechips.util.Locations;
 import org.redstonechips.wireless.Transmitter;
@@ -94,17 +90,17 @@ public class rangefinder extends Circuit {
         
         // -- calculate detection cuboid --
         try {
-            Location ib = chip.interfaceBlocks[0].getLocation();
-            BlockFace face = findDirectionBlock(ib);
+            Location il = chip.interfaceBlocks[0].getLocation();
+            BlockFace face = Locations.getDirectionBlock(il.getBlock());
             direction = face;
             origin = findOriginVector();
 
-            createCuboid(Locations.getFace(ib, face), direction, cuboidSize[0], cuboidSize[1], range);
+            createCuboid(Locations.getFace(il, face), direction, cuboidSize[0], cuboidSize[1], range);
             //for (Location l : cuboid) l.getBlock().setType(Material.GLASS);
                         
             // add 2nd interface block to the chip structure
             List<Location> locs = new ArrayList<Location>(Arrays.asList(chip.structure));
-            locs.add(Locations.getFace(ib, direction));
+            locs.add(Locations.getFace(il, direction));
             chip.structure = locs.toArray(new Location[0]);
             
         } catch (IllegalArgumentException ie) {            
@@ -172,7 +168,7 @@ public class rangefinder extends Circuit {
                     Material type = chip.world.getBlockAt(x, y, z).getType();
 
                     if (type!=Material.AIR && type!=Material.WATER && type!=Material.STATIONARY_WATER) {
-                        objectsInRange.add(findFaceCenter(x,y,z, oppositeFace));
+                        objectsInRange.add(Locations.getFaceCenter(chip.world, x,y,z, oppositeFace));
                     }
                     
                 }
@@ -288,48 +284,7 @@ public class rangefinder extends Circuit {
     private Location findOriginVector() {
         Location loc = chip.interfaceBlocks[0].getLocation();
         loc = Locations.getFace(loc, direction);
-        return findFaceCenter(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), direction);
-    }
-
-    private Location findFaceCenter(int x, int y, int z, BlockFace face) {
-        World world = chip.world;
-        
-        if (face==BlockFace.DOWN) {
-            return new Location(world, x+0.5, y, z+0.5);
-        } else if (face==BlockFace.UP) {
-            return new Location(world, x+0.5, y+1, z+0.5);
-        } else if (face==BlockFace.NORTH) {
-            return new Location(world, x, y+0.5, z-0.5);
-        } else if (face==BlockFace.SOUTH) {
-            return new Location(world, x+1, y+0.5, z+0.5);
-        } else if (face==BlockFace.EAST) {
-            return new Location(world, x+0.5, y+0.5, z);
-        } else if (face==BlockFace.WEST) {
-            return new Location(world, x-0.5, y+0.5, z+1);
-        } else throw new IllegalArgumentException("Invalid direction: " + face.name());
-    }
-
-    private static final BlockFace[] faces = new BlockFace[] { BlockFace.NORTH, BlockFace.WEST, BlockFace.EAST, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN };
-
-    private BlockFace findDirectionBlock(Location l) throws IllegalArgumentException {
-        MaterialData interfaceBlockType = RCPrefs.getInterfaceBlockType();
-        Block block = l.getBlock();
-        BlockFace ret = null;
-
-        for (BlockFace face : faces) {
-            Block b = block.getRelative(face);
-            if (b.getType()==interfaceBlockType.getItemType()
-                        && (b.getData()==interfaceBlockType.getData() || interfaceBlockType.getData()==-1)) {
-                if (ret==null)
-                    ret = face;
-                else throw new IllegalArgumentException("Found too many interface blocks attached to each other.");
-            }
-
-        }
-
-        if (ret==null)
-            throw new IllegalArgumentException("Couldn't find another interface block attached to any of the interface block faces.");
-        return ret;
+        return Locations.getFaceCenter(loc, direction);
     }
     
     private double findDistance(List<Location> objectsInRange) {        

@@ -1,4 +1,4 @@
-
+/*
 package org.redstonechips.sensorlibrary;
 
 import org.bukkit.Location;
@@ -8,7 +8,7 @@ import org.redstonechips.circuit.Circuit;
 /**
  *
  * @author Tal Eisenberg
- */
+ *//*
 public class playerid extends Circuit {
     private final int resetPin = 1;
     private final int disablePin = 0;
@@ -76,3 +76,4 @@ public class playerid extends Circuit {
         SensorLibrary.deregisterPlayeridCircuit(this);
     }
 }
+*/

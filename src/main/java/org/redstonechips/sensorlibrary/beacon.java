@@ -4,9 +4,11 @@ package org.redstonechips.sensorlibrary;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Chunk;
+import org.bukkit.event.Event;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.redstonechips.circuit.Circuit;
+import org.redstonechips.event.EventListener;
 import org.redstonechips.wireless.Transmitter;
 import org.redstonechips.util.ChunkLocation;
 
@@ -57,37 +59,47 @@ public class beacon extends Circuit {
         }
 
         sendBit();
-
-        SensorLibrary.registerChunkbeaconCircuit(this);
+        SensorLibrary.eventDispatcher.registerListener(ChunkUnloadEvent.class, chunkUnloadListener);
+        SensorLibrary.eventDispatcher.registerListener(ChunkLoadEvent.class, chunkLoadListener);
 
         return this;
     }
 
     @Override
     public void shutdown() {
-        SensorLibrary.deregisterChunkbeaconCircuit(this);
+        SensorLibrary.eventDispatcher.unregisterListener(chunkLoadListener);
+        SensorLibrary.eventDispatcher.unregisterListener(chunkUnloadListener);
     }
 
-    void onChunkLoad(ChunkLoadEvent event) {
-        if (isChunkInRange(ChunkLocation.fromChunk(event.getChunk()))) {
-            loadCount++;
+    private final EventListener chunkLoadListener = new EventListener() {
+        @Override
+        public void onEvent(Event e) {
+            ChunkLoadEvent event = (ChunkLoadEvent)e;
+            if (isChunkInRange(ChunkLocation.fromChunk(event.getChunk()))) {
+                loadCount++;
 
-            sendBit();
-        }
-    }
-
-    void onChunkUnload(ChunkUnloadEvent event) {
-        if (isChunkInRange(ChunkLocation.fromChunk(event.getChunk()))) {
-            Chunk chunk = event.getChunk();
-            if (keepalive) {
-                if (chip.hasListeners()) debug("Chunk (" + chunk.getX() + ", " + chunk.getZ() + ") in " + chip.world.getName()+ " is kept alive.");
-                event.setCancelled(true);
-            } else {
-                loadCount--;
                 sendBit();
             }
+        }        
+    };
+
+    private final EventListener chunkUnloadListener = new EventListener() {
+        @Override
+        public void onEvent(Event e) {
+            ChunkUnloadEvent event = (ChunkUnloadEvent)e;
+            if (isChunkInRange(ChunkLocation.fromChunk(event.getChunk()))) {
+                Chunk chunk = event.getChunk();
+                if (keepalive) {
+                    if (chip.hasListeners()) debug("Chunk (" + chunk.getX() + ", " + chunk.getZ() + ") in " + chip.world.getName()+ " is kept alive.");
+                    event.setCancelled(true);
+                } else {
+                    loadCount--;
+                    sendBit();
+                }
+            }
         }
-    }
+        
+    };
 
     private void sendBit() {
         boolean loaded = loadCount>0;

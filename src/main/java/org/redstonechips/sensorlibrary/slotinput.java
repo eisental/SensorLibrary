@@ -6,14 +6,17 @@ import java.util.Map;
 import org.redstonechips.parsing.Parsing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.redstonechips.RCPrefs;
 import org.redstonechips.chip.Chip;
 import org.redstonechips.circuit.Circuit;
+import org.redstonechips.event.EventListener;
 
 public class slotinput extends Circuit {
 
+    PlayerInteractListener eventListener;
     int numberOfSets, wordlength;
     int[] results;
 
@@ -59,7 +62,8 @@ public class slotinput extends Circuit {
         results = new int[numberOfSets];
         Arrays.fill(results, 0);
 
-        SensorLibrary.registerSlotinputCircuit(this);
+        eventListener = new PlayerInteractListener();
+        SensorLibrary.eventDispatcher.registerListener(org.bukkit.event.player.PlayerInteractEvent.class, eventListener);
 
         if (activator!=null) clearOutputs();
         return this;
@@ -67,40 +71,45 @@ public class slotinput extends Circuit {
 
     @Override
     public void shutdown() {
-        SensorLibrary.deregisterSlotinputCircuit(this);
+        SensorLibrary.eventDispatcher.unregisterListener(eventListener);
     }
 
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction()!=Action.LEFT_CLICK_BLOCK && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
+    class PlayerInteractListener implements EventListener {
 
-        Chip c = rc.chipManager().getAllChips().getByStructureBlock(event.getClickedBlock().getLocation());
-        if (c!=chip) return;
-        Location loc = event.getClickedBlock().getLocation();
+        @Override
+        public void onEvent(Event e) {
+            PlayerInteractEvent event = (PlayerInteractEvent)e;
+            if (event.getAction()!=Action.LEFT_CLICK_BLOCK && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 
-        for (int i=0; i<chip.interfaceBlocks.length; i++) {
-            if (chip.interfaceBlocks[i].getLocation().equals(loc)) {
-                int newDigit;
-                if (event.getAction()==Action.RIGHT_CLICK_BLOCK)
-                    newDigit = event.getPlayer().getInventory().getHeldItemSlot()+1;
-                else 
-                    newDigit = 0;
+            Chip c = rc.chipManager().getAllChips().getByStructureBlock(event.getClickedBlock().getLocation());
+            if (c!=chip) return;
+            Location loc = event.getClickedBlock().getLocation();
 
-                int result = replaceDigitOfInterfaceBlock(i, newDigit);
-                String sres = ChatColor.LIGHT_PURPLE.toString() + result + RCPrefs.getInfoColor() + ".";
-                            
-                if (numberOfSets==1) 
-                    infoForSender(event.getPlayer(), chip + ": Setting value to " + sres);
-                else
-                    infoForSender(event.getPlayer(), chip + ": Setting " + 
-                            Parsing.indexToOrdinal(interfaceSetIndex(i)) + " set to " + sres);
+            for (int i=0; i<chip.interfaceBlocks.length; i++) {
+                if (chip.interfaceBlocks[i].getLocation().equals(loc)) {
+                    int newDigit;
+                    if (event.getAction()==Action.RIGHT_CLICK_BLOCK)
+                        newDigit = event.getPlayer().getInventory().getHeldItemSlot()+1;
+                    else 
+                        newDigit = 0;
 
-                if (interfaceSetIndex(i)>=inputlen || inputs[interfaceSetIndex(i)]) {
-                    writeInt(result, outputStartIndex(i), outputlen/numberOfSets);
+                    int result = replaceDigitOfInterfaceBlock(i, newDigit);
+                    String sres = ChatColor.LIGHT_PURPLE.toString() + result + RCPrefs.getInfoColor() + ".";
+
+                    if (numberOfSets==1) 
+                        infoForSender(event.getPlayer(), chip + ": Setting value to " + sres);
+                    else
+                        infoForSender(event.getPlayer(), chip + ": Setting " + 
+                                Parsing.indexToOrdinal(interfaceSetIndex(i)) + " set to " + sres);
+
+                    if (interfaceSetIndex(i)>=inputlen || inputs[interfaceSetIndex(i)]) {
+                        writeInt(result, outputStartIndex(i), outputlen/numberOfSets);
+                    }
+
+                    event.setCancelled(true);
+
+                    break;
                 }
-
-                event.setCancelled(true);
-
-                break;
             }
         }
     }

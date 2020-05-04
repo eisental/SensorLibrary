@@ -53,7 +53,7 @@ public class vehicleid extends Circuit {
          				}         				
          				try {                            
          					distance = Byte.decode(args[i].substring(args[i].indexOf("{")+1, args[i].length()-1));
-         		            if (distance==0 || distance>maxIdDistance) return error("Bad distance argument: " + args[0] + ". Expecting a number between 1 and " + maxIdDistance + ". Set playerid.maxdistance in preferences.yml to extend the maximum distance.");
+         		            if (distance==0 || distance>maxIdDistance) return error("Bad distance argument: " + args[0] + ". Expecting a number between 1 and " + maxIdDistance + ". Set vehicleid.maxdistance in preferences.yml to extend the maximum distance.");
                             
                         } catch (NumberFormatException ne2) {
                         	return error("Bad distance argument: " + args[0] + ". Expecting a number between 1 and " + maxIdDistance);

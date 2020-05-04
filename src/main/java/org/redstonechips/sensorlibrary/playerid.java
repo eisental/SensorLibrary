@@ -34,13 +34,10 @@ public class playerid extends Circuit {
 
     @Override
     public Circuit init(String[] args) {
-        System.out.println("init ran");
-    	if (outputlen==0 || chip.interfaceBlocks.length==0) {
+       if (outputlen==0 || chip.interfaceBlocks.length==0) {
             return error("Expecting at least 2 output pins and at least 1 interface block.");
         } else {
-        	//SensorLibrary.eventDispatcher.registerPlayerListener(PlayerMoveEvent.class, playerListener);
-        	SensorLibrary.eventDispatcher.registerListener(PlayerMoveEvent.class, moveListener);
-        	//SensorLibrary.registerPlayeridCircuit(this);
+         	SensorLibrary.eventDispatcher.registerListener(PlayerMoveEvent.class, moveListener);
             return this;
         }
     }
@@ -64,7 +61,7 @@ public class playerid extends Circuit {
                 boolean distanceCheckAbove = (to.getBlockY()-in.getBlockY()==1 && to.getBlockX()-in.getBlockX()==0 && to.getBlockZ()-in.getBlockZ()==0);
                 boolean distanceCheckBelow = (in.getBlockY()-to.getBlockY()==1 && to.getBlockX()-in.getBlockX()==0 && to.getBlockZ()-in.getBlockZ()==0);
                 boolean withinDistance = distanceCheckRight || distanceCheckLeft || distanceCheckFront || distanceCheckBack || distanceCheckAbove ||  distanceCheckBelow;
-                System.out.println("withinDistance = " + withinDistance);
+
                 if (withinDistance) {
                     found = true;
                     if (i!=lastInterface) {
@@ -80,11 +77,7 @@ public class playerid extends Circuit {
                         lastInterface = i;
                         return;
                     }
-                }
-                else {
-                	writeInt(0, 1, outputlen-1);
-
-                }
+                }              
             }
 
             if (!found) lastInterface = -1;

@@ -70,6 +70,16 @@ public class beacon extends Circuit {
         SensorLibrary.eventDispatcher.unregisterListener(chunkLoadListener);
         SensorLibrary.eventDispatcher.unregisterListener(chunkUnloadListener);
     }
+    @Override
+    public void destroyed() {
+        SensorLibrary.eventDispatcher.unregisterListener(chunkLoadListener);
+        SensorLibrary.eventDispatcher.unregisterListener(chunkUnloadListener);
+    }
+    @Override
+    public void disable() {
+        SensorLibrary.eventDispatcher.unregisterListener(chunkLoadListener);
+        SensorLibrary.eventDispatcher.unregisterListener(chunkUnloadListener);
+    }
 
     private final EventListener chunkLoadListener = new EventListener() {
         @Override

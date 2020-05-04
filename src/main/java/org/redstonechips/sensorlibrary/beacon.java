@@ -91,7 +91,7 @@ public class beacon extends Circuit {
                 Chunk chunk = event.getChunk();
                 if (keepalive) {
                     if (chip.hasListeners()) debug("Chunk (" + chunk.getX() + ", " + chunk.getZ() + ") in " + chip.world.getName()+ " is kept alive.");
-                    event.setCancelled(true);
+                    chunk.setForceLoaded(true);
                 } else {
                     loadCount--;
                     sendBit();

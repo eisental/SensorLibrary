@@ -8,6 +8,7 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -32,9 +33,9 @@ public class liquidlevel extends Circuit {
     private static final Set<Material> liquids = new HashSet<>();
     static {
         liquids.add(Material.WATER);
-        liquids.add(Material.STATIONARY_WATER);
+        //liquids.add(Material.STATIONARY_WATER);
         liquids.add(Material.LAVA);
-        liquids.add(Material.STATIONARY_LAVA);
+        //liquids.add(Material.STATIONARY_LAVA);
     }
     
     Map<Location,Byte> sides = new HashMap<>();
@@ -155,6 +156,8 @@ public class liquidlevel extends Circuit {
         BlockState b = l.getBlock().getState();
         if (liquids.contains(b.getType())) {
                 byte data = b.getData().getData();
+                System.out.println("old = " + b);
+                //System.out.println("new = " + b.getBlockData().getLevel());
                 if (data>7) // falling liquid. full water block.
                     return 8;
                 else                        

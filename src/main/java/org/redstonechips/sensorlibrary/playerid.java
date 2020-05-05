@@ -53,10 +53,10 @@ public class playerid extends Circuit {
          				}         				
          				try {                            
          					distance = Byte.decode(args[i].substring(args[i].indexOf("{")+1, args[i].length()-1));
-         		            if (distance==0 || distance>maxIdDistance) return error("Bad distance argument: " + args[0] + ". Expecting a number between 1 and " + maxIdDistance + ". Set playerid.maxdistance in preferences.yml to extend the maximum distance.");
+         		            if (distance==0 || distance>maxIdDistance) return error("Maximum distance exceeded: " + args[i] + ". The maximum distance is " + maxIdDistance + ". Set playerid.maxdistance in preferences.yml to extend the maximum distance.");
                             
                         } catch (NumberFormatException ne2) {
-                        	return error("Bad distance argument: " + args[0] + ". Expecting a number between 1 and " + maxIdDistance);
+                        	return error("Bad distance argument: " + args[i] + ". Expecting a number between 1 and " + maxIdDistance);
                           }                        
          			}
          			else if (args[i].toUpperCase().equals("SPHERE")) sphere = true;

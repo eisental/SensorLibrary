@@ -199,6 +199,10 @@ public class rangefinder extends Circuit {
                             case NORTH:
                                 lp.add(0,0,-0.2);
                                 break;
+						default:
+							break;
+                           
+                           
                         }
                         objectsInRange.add(lp);
                     } else {

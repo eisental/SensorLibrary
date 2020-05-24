@@ -19,6 +19,24 @@ public class vehicleid extends Circuit {
     private int lastInterface = -1;
     private byte distance = 1;
     private boolean sphere = false;
+    
+    private Boolean[] directionAim = new Boolean[] {    
+    		false,
+    		false,
+    		false,
+    		false,
+    		false,
+    		false,
+    };
+    
+    private static final String[] directionText = new String[] {
+            "EAST",
+            "WEST",
+            "NORTH",
+            "SOUTH",
+            "ABOVE",
+            "BELOW",            
+    };
 
     @Override
     public void input(boolean state, int inIdx) {
@@ -61,6 +79,11 @@ public class vehicleid extends Circuit {
          			}
          			else if (args[i].toUpperCase().equals("SPHERE")) sphere = true;
          			else if (args[i].toUpperCase().equals("AXIS")) sphere = false;
+         			for (byte j=0; j<=5; j++) {
+         				if (args[i].toUpperCase().equals(directionText[j])) { // if sign arg is a direction, mark that direction as true
+         					directionAim[j] = true;
+         				}
+         			}
          		}	
          	}
         }
@@ -79,7 +102,7 @@ public class vehicleid extends Circuit {
         
         	for (int i=0; i<chip.interfaceBlocks.length; i++) {
             	Location in = chip.interfaceBlocks[i].getLocation();
-            	if (checkSphereOrAxis(to, in)) {
+            	if (checkDistOfSphereOrAxis(to, in)) {
                 	found = true;
                 	if (i!=lastInterface) {
                     	int vid = v.getVehicle().getEntityId();
@@ -101,19 +124,78 @@ public class vehicleid extends Circuit {
     	}
     };
    
-    private boolean checkSphereOrAxis(Location too, Location inn){    	
+    private boolean checkDistOfSphereOrAxis(Location too, Location inn){  // check the distance of the player to interface block
         if (sphere) {
-        	boolean distanceSphere = (Math.abs(too.getBlockX()-inn.getBlockX())<=distance && Math.abs(too.getBlockY()-inn.getBlockY())<=distance && Math.abs(too.getBlockZ()-inn.getBlockZ())<=distance);
-        	if (distanceSphere) return true;
+
+        	boolean distanceSphereWest = (inn.getBlockX()-too.getBlockX()<=distance && 
+        								 inn.getBlockX()-too.getBlockX()>0 &&
+        								  Math.abs(too.getBlockY()-inn.getBlockY())<=distance && 
+           							      Math.abs(too.getBlockZ()-inn.getBlockZ())<=distance);
+        	boolean distanceSphereEast = (too.getBlockX()-inn.getBlockX()<=distance && 
+					 					  too.getBlockX()-inn.getBlockX()>0 &&
+					 					  Math.abs(too.getBlockY()-inn.getBlockY())<=distance && 
+					 					  Math.abs(too.getBlockZ()-inn.getBlockZ())<=distance);
+        	boolean distanceSphereNorth = (inn.getBlockZ()-too.getBlockZ()<=distance && 
+					  					   inn.getBlockZ()-too.getBlockZ()>0 &&
+					  					   Math.abs(too.getBlockY()-inn.getBlockY())<=distance && 
+					  					   Math.abs(too.getBlockX()-inn.getBlockX())<=distance);
+        	boolean distanceSphereSouth = (too.getBlockZ()-inn.getBlockZ()<=distance &&
+					   					   too.getBlockZ()-inn.getBlockZ()>0 &&
+					   					   Math.abs(too.getBlockY()-inn.getBlockY())<=distance && 
+					   					   Math.abs(too.getBlockX()-inn.getBlockX())<=distance);
+        	boolean distanceSphereAbove = (too.getBlockY()-inn.getBlockY()<=distance && 
+					   					   too.getBlockY()-inn.getBlockY()>0 &&
+					   					   Math.abs(too.getBlockZ()-inn.getBlockZ())<=distance && 
+					   					   Math.abs(too.getBlockX()-inn.getBlockX())<=distance);
+        	boolean distanceSphereBelow = (inn.getBlockY()-too.getBlockY()<=distance && 
+        								   inn.getBlockY()-too.getBlockY()>0 &&
+        								   Math.abs(too.getBlockZ()-inn.getBlockZ())<=distance && 
+        								   Math.abs(too.getBlockX()-inn.getBlockX())<=distance);
+        	boolean distanceSphere = (distanceSphereEast&&!directionAim[1]&&!directionAim[2]&&!directionAim[3]&&!directionAim[4]&&!directionAim[5])
+            		|| (distanceSphereWest&&!directionAim[0]&&!directionAim[2]&&!directionAim[3]&&!directionAim[4]&&!directionAim[5])
+            		|| (distanceSphereNorth&&!directionAim[1]&&!directionAim[0]&&!directionAim[3]&&!directionAim[4]&&!directionAim[5])
+            		|| (distanceSphereSouth&&!directionAim[1]&&!directionAim[2]&&!directionAim[0]&&!directionAim[4]&&!directionAim[5])
+            		|| (distanceSphereAbove&&!directionAim[1]&&!directionAim[2]&&!directionAim[3]&&!directionAim[0]&&!directionAim[5])
+            		|| (distanceSphereBelow&&!directionAim[1]&&!directionAim[2]&&!directionAim[3]&&!directionAim[4]&&!directionAim[0]);            
+        	if (distanceSphere) return true;        	
         }
-        else if (!sphere) {
-        boolean distanceCheckRight = (Math.abs(too.getBlockX()-inn.getBlockX())<=distance && too.getBlockY()-inn.getBlockY()==0 && too.getBlockZ()-inn.getBlockZ()==0);
-        boolean distanceCheckLeft = (Math.abs(inn.getBlockX() - too.getBlockX())<=distance && too.getBlockY()-inn.getBlockY()==0 && too.getBlockZ()-inn.getBlockZ()==0);
-        boolean distanceCheckFront = (Math.abs(too.getBlockZ()-inn.getBlockZ())<=distance && too.getBlockY()-inn.getBlockY()==0 && too.getBlockX()-inn.getBlockX()==0);
-        boolean distanceCheckBack = (Math.abs(inn.getBlockZ()-too.getBlockZ())<=distance && too.getBlockY()-inn.getBlockY()==0 && too.getBlockX()-inn.getBlockX()==0);                
-        boolean distanceCheckAbove = (Math.abs(too.getBlockY()-inn.getBlockY())<=distance && too.getBlockX()-inn.getBlockX()==0 && too.getBlockZ()-inn.getBlockZ()==0);
-        boolean distanceCheckBelow = (Math.abs(inn.getBlockY()-too.getBlockY())<=distance && too.getBlockX()-inn.getBlockX()==0 && too.getBlockZ()-inn.getBlockZ()==0);
-        boolean axisDistance = distanceCheckRight || distanceCheckLeft || distanceCheckFront || distanceCheckBack || distanceCheckAbove ||  distanceCheckBelow;
+        else {
+        boolean distanceCheckEast= (too.getBlockX()-inn.getBlockX()<=distance && 
+        							too.getBlockX()-inn.getBlockX()>0 &&
+        							too.getBlockY()-inn.getBlockY()==0 && 
+        							too.getBlockZ()-inn.getBlockZ()==0); // can not use ABS as it will flag opposing sides as true instead of just one side
+        
+        boolean distanceCheckWest= (inn.getBlockX()-too.getBlockX()<=distance && 
+        							inn.getBlockX()-too.getBlockX()>0 && 
+        							too.getBlockY()-inn.getBlockY()==0 && 
+        							too.getBlockZ()-inn.getBlockZ()==0);
+        
+        boolean distanceCheckNorth=(inn.getBlockZ()-too.getBlockZ()<=distance && 
+        							inn.getBlockZ()-too.getBlockZ()>0 && 
+        							too.getBlockY()-inn.getBlockY()==0 && 
+        							too.getBlockX()-inn.getBlockX()==0);
+        
+        boolean distanceCheckSouth=(too.getBlockZ()-inn.getBlockZ()<=distance && 
+        							too.getBlockZ()-inn.getBlockZ()>0 && 
+        							too.getBlockY()-inn.getBlockY()==0 && 
+        							too.getBlockX()-inn.getBlockX()==0);                
+        
+        boolean distanceCheckAbove=(too.getBlockY()-inn.getBlockY()<=distance && 
+        							too.getBlockY()-inn.getBlockY()>0 && 
+        							too.getBlockX()-inn.getBlockX()==0 && 
+        							too.getBlockZ()-inn.getBlockZ()==0);
+        
+        boolean distanceCheckBelow=(inn.getBlockY()-too.getBlockY()<=distance && 
+        							inn.getBlockY()-too.getBlockY()>0 && 
+        							too.getBlockX()-inn.getBlockX()==0 && 
+        							too.getBlockZ()-inn.getBlockZ()==0);
+        
+        boolean axisDistance = (distanceCheckEast&&!directionAim[1]&&!directionAim[2]&&!directionAim[3]&&!directionAim[4]&&!directionAim[5])
+        		|| (distanceCheckWest&&!directionAim[0]&&!directionAim[2]&&!directionAim[3]&&!directionAim[4]&&!directionAim[5])
+        		|| (distanceCheckNorth&&!directionAim[1]&&!directionAim[0]&&!directionAim[3]&&!directionAim[4]&&!directionAim[5])
+        		|| (distanceCheckSouth&&!directionAim[1]&&!directionAim[2]&&!directionAim[0]&&!directionAim[4]&&!directionAim[5])
+        		|| (distanceCheckAbove&&!directionAim[1]&&!directionAim[2]&&!directionAim[3]&&!directionAim[0]&&!directionAim[5])
+        		|| (distanceCheckBelow&&!directionAim[1]&&!directionAim[2]&&!directionAim[3]&&!directionAim[4]&&!directionAim[0]);
         	if (axisDistance) return true;
         }
         return false;

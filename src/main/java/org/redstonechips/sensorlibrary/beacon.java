@@ -70,6 +70,16 @@ public class beacon extends Circuit {
         SensorLibrary.eventDispatcher.unregisterListener(chunkLoadListener);
         SensorLibrary.eventDispatcher.unregisterListener(chunkUnloadListener);
     }
+    @Override
+    public void destroyed() {
+        SensorLibrary.eventDispatcher.unregisterListener(chunkLoadListener);
+        SensorLibrary.eventDispatcher.unregisterListener(chunkUnloadListener);
+    }
+    @Override
+    public void disable() {
+        SensorLibrary.eventDispatcher.unregisterListener(chunkLoadListener);
+        SensorLibrary.eventDispatcher.unregisterListener(chunkUnloadListener);
+    }
 
     private final EventListener chunkLoadListener = new EventListener() {
         @Override
@@ -91,7 +101,7 @@ public class beacon extends Circuit {
                 Chunk chunk = event.getChunk();
                 if (keepalive) {
                     if (chip.hasListeners()) debug("Chunk (" + chunk.getX() + ", " + chunk.getZ() + ") in " + chip.world.getName()+ " is kept alive.");
-                    event.setCancelled(true);
+                    chunk.setForceLoaded(true);
                 } else {
                     loadCount--;
                     sendBit();

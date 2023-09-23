@@ -26,7 +26,7 @@ public class pirsensor extends Circuit {
             // clock pin triggered
             boolean alarm = false;            
 
-            for (Object o : chip.world.getEntitiesByClass(checkedEntities)) {
+            for (Object o : chip.world.getEntitiesByClasses(checkedEntities)) {
                 Entity e = (Entity)o;
 
                 Location l = e.getLocation();

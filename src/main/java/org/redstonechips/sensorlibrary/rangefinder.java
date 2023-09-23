@@ -167,7 +167,7 @@ public class rangefinder extends Circuit {
                 for (int z = corner1.getBlockZ(); z<=corner2.getBlockZ(); z++) {
                     Material type = chip.world.getBlockAt(x, y, z).getType();
 
-                    if (type!=Material.AIR && type!=Material.WATER && type!=Material.STATIONARY_WATER) {
+                    if (type!=Material.AIR && type!=Material.WATER) {
                         objectsInRange.add(Locations.getFaceCenter(chip.world, x,y,z, oppositeFace));
                     }
                     
@@ -199,6 +199,10 @@ public class rangefinder extends Circuit {
                             case NORTH:
                                 lp.add(0,0,-0.2);
                                 break;
+						default:
+							break;
+                           
+                           
                         }
                         objectsInRange.add(lp);
                     } else {

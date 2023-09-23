@@ -8,7 +8,8 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Levelled;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
@@ -32,9 +33,9 @@ public class liquidlevel extends Circuit {
     private static final Set<Material> liquids = new HashSet<>();
     static {
         liquids.add(Material.WATER);
-        liquids.add(Material.STATIONARY_WATER);
+        //liquids.add(Material.FLOWING_WATER);
         liquids.add(Material.LAVA);
-        liquids.add(Material.STATIONARY_LAVA);
+        //liquids.add(Material.STATIONARY_LAVA);
     }
     
     Map<Location,Byte> sides = new HashMap<>();
@@ -152,13 +153,17 @@ public class liquidlevel extends Circuit {
     }
 
     private byte findWaterLevel(Location l) {
-        BlockState b = l.getBlock().getState();
+        Block b = l.getBlock();
+        BlockData bd = b.getBlockData();
+        
         if (liquids.contains(b.getType())) {
-                byte data = b.getData().getData();
-                if (data>7) // falling liquid. full water block.
+                Levelled data = (Levelled)bd;
+                System.out.println("old = " + b);
+                //System.out.println("new = " + b.getBlockData().getLevel());
+                if (data.getLevel()>7) // falling liquid. full water block.
                     return 8;
                 else                        
-                    return (byte)(8-b.getData().getData());
+                    return (byte)(8-data.getLevel());
         } else {
             return 0;
         }        

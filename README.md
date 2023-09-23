@@ -10,7 +10,7 @@ a [RedstoneChips](http://eisental.github.com/RedstoneChips) circuit library cont
 - rangefinder - An ultrasonic transceiver for detecting the exact distance between the chip and anything.
 - beacon - Can force map chunks to stay loaded and monitors whether chunks in a region are loaded or not. 
 - slotinput - Input decimal numbers by choosing an inventory slot and clicking an interface block.
-- vehicleid - Track a vehicle entity id number as it passes over the chip interface blocks.
+- vehicleid - Track a vehicle entity id number as it passes by the chip interface blocks.
 - playerid - Track a player entity id.
 - spark - Strike thunders on command.
 
@@ -19,10 +19,14 @@ __For much more information, see the [circuitdocs](http://eisental.github.com/Re
 Installation
 -------------
 * Download the latest RedstoneChips bundle [RedstoneChips](http://eisental.github.com/RedstoneChips).
-* Copy all jar files into the plugins folder of your craftbukkit installation.
+* Copy all jar files into the plugins folder of your spigot installation.
 
 Changelog
 ---------
+#### SensorLibrary 0.4
+- Updated for RC1.0
+__playerid__: Added sign arguments for sphere and axis type detection and distance of detection
+__vehicleid__: Added sign arguments for sphere and axis type detection and distance of detection
 #### SensorLibrary 0.34
 - __daytime__: Fixed daytime offset bug.
 
